@@ -432,11 +432,11 @@
                 {% if not user.is_authenticated %}
                     <div class="chat-background-content" id="bg-auth"{% if action == 'none' %} style="display: flex;"{% endif %}>
                         <span class="chat-auth-label">Вход или регистрация в Chad</span>
-                        <a class="chat-auth-social yandex">
+                        <a href="{% url 'chat:yandex_login' %}" class="chat-auth-social yandex">
                             <img src="{% static 'img/chat-auth-yandex.svg' %}" alt="yandex">
                             <span>Яндекс</span>
                         </a>
-                        <a class="chat-auth-social vk">
+                        <a href="{% url 'social:begin' 'vk-oauth2' %}?next=/chat/" class="chat-auth-social vk">
                             <img src="{% static 'img/chat-auth-vk.svg' %}" alt="vk">
                             <span>Вконтакте</span>
                         </a>
@@ -791,7 +791,7 @@
                                 </div>
                             </div>
                             <div class="chat-bg-new-block">
-                                <p>Создание картинок доступно в платных тарифах Chad.</p>
+                                <p>Создание картинок доступно в <span class="chat-bg-new-link chat-clickable clickable-tariffs">платных тарифах Chad.</p>
                                 <p>Ниже - примеры того, что можно ожидать по запросу:<br>
                                     <i>"{{ sample.text }}".</i>
                                 </p>

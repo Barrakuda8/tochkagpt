@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход через Yandex</title>
+    <script src="https://yastatic.net/s3/passport-sdk/autofill/v1/sdk-suggest-with-polyfills-latest.js"></script>
+</head>
+<body>
+  <script>
+    YaAuthSuggest.init(
+        {
+           client_id: '208d8d3eb54741ba943c9c4394f4187f',
+           response_type: 'token',
+           redirect_uri: 'https://tochkagpt.ru/chat/yandex_redirect/'
+        },
+        'https://tochkagpt.ru/'
+     )
+     .then(({
+        handler
+     }) => handler())
+     .then(data => console.log('Сообщение с токеном', data))
+     .catch(error => console.log('Обработка ошибки', error));
+  </script>
+</body>
+</html>

@@ -18,4 +18,6 @@ urlpatterns = [
     path('select_ai/', chat.select_ai, name='select_ai'),
     path('get_sample/', chat.get_sample, name='get_sample'),
     path('set_context/', chat.set_context, name='set_context'),
+    path('yandex_login/', chat.yandex_login, name='yandex_login'),
+    path('yandex_redirect/', chat.yandex_redirect, name='yandex_redirect'),
 ]

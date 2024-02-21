@@ -27,6 +27,8 @@ def index(request):
 
     context = {
         'title': 'Чат',
+        'new_chat_samples_1': NewChatSample.objects.filter(category__isnull=True, section='1').order_by('pk'),
+        'new_chat_samples_2': NewChatSample.objects.filter(category__isnull=True, section='2').order_by('pk'),
     }
 
     if request.user.is_authenticated:
@@ -43,8 +45,6 @@ def index(request):
         context['STATIC_URL'] = STATIC_URL
         context['MEDIA_URL'] = MEDIA_URL
         context['request_price'] = config.REQUEST_PRICE
-        context['new_chat_samples_1'] = NewChatSample.objects.filter(category__isnull=True, section='1').order_by('pk')
-        context['new_chat_samples_2'] = NewChatSample.objects.filter(category__isnull=True, section='2').order_by('pk')
         context['new_chat_categories_1'] = NewChatCategory.objects.filter(section='1')
         context['new_chat_categories_2'] = NewChatCategory.objects.filter(section='2')
         context['new_chat_categories_3'] = NewChatCategory.objects.filter(section='3')
@@ -245,7 +245,7 @@ def get_stable_response(message, user, chat, from_subscription):
     image.save(new_file_path, quality=90, optimize=True)
     received_message = Message.objects.create(user=user, chat=chat, is_sender=False, used_ai='SD',
                                               from_subscription=from_subscription)
-    attachment = Attachment.objects.create(message=received_message, file=new_file_path)
+    attachment = Attachment.objects.create(message=received_message, file='attachments/' + file_name)
     return {'file': attachment.file.url, 'message_pk': received_message.pk}
 
 
@@ -275,7 +275,7 @@ def get_midjourney_response(message, user, chat, from_subscription):
 
     received_message = Message.objects.create(user=user, chat=chat, is_sender=False, used_ai='MJ',
                                               from_subscription=from_subscription)
-    attachment = Attachment.objects.create(message=received_message, file=file_path)
+    attachment = Attachment.objects.create(message=received_message, file='attachments/' + file_name)
     return {'file': attachment.file.url, 'message_pk': received_message.pk}
 
 
@@ -505,4 +505,12 @@ def set_context(request):
     user.use_context = True if value == 'yes' else False
     user.save()
     return JsonResponse({'result': 'ok'})
+
+
+def yandex_login(request):
+    return render(request, 'chat/yandex_login.html')
+
+
+def yandex_redirect(request):
+    return render(request, 'chat/yandex_redirect.html')
 
