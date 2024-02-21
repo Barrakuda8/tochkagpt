@@ -1,0 +1,41 @@
+[
+  {
+    "name": "Test",
+    "price": 500,
+    "characteristics": {"details":  []},
+    "requests_GPT35": 100,
+    "requests_GPT4": 0,
+    "requests_VS": 10,
+    "requests_SD": 20,
+    "requests_MJ": 0,
+    "requests_DL3": 0,
+    "samples_included": false,
+    "most_chosen": false
+  },
+  {
+    "name": "Premium",
+    "price": 1000,
+    "characteristics": {"details":  ["Шаблоны запросов"]},
+    "requests_GPT35": 300,
+    "requests_GPT4": 0,
+    "requests_VS": 30,
+    "requests_SD": 50,
+    "requests_MJ": 0,
+    "requests_DL3": 10,
+    "samples_included": true,
+    "most_chosen": true
+  },
+  {
+    "name": "Ultra",
+    "price": 3000,
+    "characteristics": {"details":  ["Шаблоны запросов"]},
+    "requests_GPT35": 0,
+    "requests_GPT4": 1000,
+    "requests_VS": 100,
+    "requests_SD": 500,
+    "requests_MJ": 50,
+    "requests_DL3": 50,
+    "samples_included": true,
+    "most_chosen": false
+  }
+]

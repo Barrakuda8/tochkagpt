@@ -1,0 +1,26 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block js %}
+<script src="{% static 'js/blog.js' %}"></script>
+{% endblock %}
+{% block content %}
+<div class="faq-content container">
+    <div class="faq-categories">
+        <div class="faq-category selected" id="all">Все</div>
+        {% for cat in categories %}
+            <div class="faq-category" id="category-{{ cat.pk }}">{{ cat.name }}</div>
+        {% endfor %}
+    </div>
+    <div class="blog-articles">
+        {% for article in articles %}
+        <a href="{% url 'main:article' pk=article.pk %}" class="blog-article{{ article.get_category_classes }}">
+            <div class="blog-photo-block">
+                <img src="{{ article.photo.url }}" class="blog-photo">
+            </div>
+            <h2 class="blog-title">{{ article.title }}</h2>
+            <p class="blog-second-title">{{ article.second_title }}</p>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,853 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}{{ title }}{% endblock %}</title>
+        <link rel="stylesheet" href="{% static 'css/style.css'%}">
+        <link type="image/x-icon" href="{% static 'img/logo.svg'%}" rel="shortcut icon" id="head_icon">
+        <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+        <script src="{% static 'js/chat.js' %}"></script>
+        <style>
+            body { 
+                background-color: unset;
+                color: #171719;
+            }
+        </style>
+        <script>
+            var samplesData = {
+                'public': {{ samples_js|safe }},
+                'private': {{ user_samples_js|safe }},
+                'favorites': {{ liked_samples_js|safe }}
+            };
+            var categoriesJs = {{ categories_js|safe }};
+            var favoritesPks = {{ liked_samples_pks|safe }};
+            var staticURL = '{{ STATIC_URL }}';
+            var mediaURL = '{{ MEDIA_URL }}';
+            var isNew = '{{ current_chat }}' == 'None' ? true : false;
+            var requestPrice = {{ request_price|safe }};
+        </script>
+    </head>
+    <body>
+        <div class="chat-content">
+            <div class="chat-menu-block">
+                <div class="chat-menu-top">
+                    <a class="chat-menu-logo-block">
+                        <img src="{% static 'img/logo.svg'%}" alt="logo" class="chat-menu-logo">
+                        <span class="chat-menu-logo-title">Chad</span>
+                    </a>
+                    <div class="chat-menu-chat-block new{% if not current_chat %} selected{% endif %}"{% if not user.is_authenticated or not chats %}style="display: none;"{% endif %}>
+                        <img src="{% static 'img/chat-new-icon.svg' %}" alt="+" class="chat-menu-img">
+                        <span>Новый чат</span>
+                    </div>
+                    {% for chat in chats %}
+                    <div class="chat-menu-chat-block {% if chat.pk == current_chat.pk %} selected{% endif %}" id="menu-chat-{{ chat.pk }}">
+                        <img src="{% static 'img/chat-chat-icon.svg' %}" alt="chat" class="chat-menu-img">
+                        <span>{{ chat.get_name }}</span>
+                        <div class="chat-menu-chat-delete" id="delete-chat-{{ chat.pk }}">
+                            <img src="{% static 'img/chat-close.svg' %}" alt="X">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="chat-menu-bottom"{% if not user.is_authenticated %}style="display: none;"{% endif %}>
+                    <a class="chat-menu-link-block chat-clickable clickable-lk">
+                        <img src="{% static 'img/chat-lk-icon.svg' %}" class="chat-menu-img">
+                        <span class="chat-menu-link">Личный кабинет <img src="{% static 'img/chat-lk-arrow.svg' %}" alt=">" class="chat-menu-arrow"></span>
+                        <span class="chat-menu-email">{{ user.email }}</span>
+                    </a>
+                    <a class="chat-menu-link-block chat-clickable clickable-tariffs">
+                        <img src="{% static 'img/chat-tariffs-icon.svg' %}" class="chat-menu-img">
+                        <span class="chat-menu-link">Тарифы и оплата</span>
+                    </a>
+                    <a class="chat-menu-link-block chat-clickable clickable-news">
+                        <img src="{% static 'img/chat-news-icon.svg' %}" class="chat-menu-img">
+                        <span class="chat-menu-link">Новости и поддержка</span>
+                    </a>
+                </div>
+            </div>
+            <div class="m-header-menu-background"></div>
+            <div class="m-chat-menu-block">
+                <div class="m-chat-menu-open">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <a class="m-chat-menu-logo-block">
+                    <img src="{% static 'img/logo.svg'%}" alt="logo" class="m-chat-menu-logo">
+                    <span class="m-chat-menu-logo-title">Chad</span>
+                </a>
+                <div class="m-chat-menu-new">Новый чат</div>
+            </div>
+            <div class="chat-chat-block">
+                <div class="chat-chat-field-area">
+                    <div class="chat-chat-field-content">
+                        {% if current_chat %}
+                            {% for message in current_chat.get_messages %}
+                                <div class="chat-chat-message-block{% if not message.is_sender %} received{% endif %}" id="message-{{ message.pk }}">
+                                    {% if message.is_sender %}
+                                        <div class="chat-chat-message-avatar">{{ user.username.0 }}</div>
+                                    {% else %}
+                                        <div class="chat-chat-message-logo">
+                                            <img src="{% static 'img/logo.svg' %}">
+                                        </div>
+                                    {% endif %}
+                                    <div class="chat-chat-message">
+                                        {% if message.sample %}
+                                            <span class="chat-chat-message-label">Шаблон:</span>
+                                            <p>{{ message.sample.name }}</p>
+                                            <span class="chat-chat-message-label">Запрос:</span>
+                                        {% endif %}
+                                        {% if message.text %}
+                                            <p id="text-{{ message.pk }}">{{ message.text|safe }}</p>
+                                        {% endif %}
+                                        {% if message.get_attachment %}
+                                            {% if message.is_sender %}
+                                            <a href="{{ message.get_attachment.0 }}" target="_blank" class="chat-chat-message-attachment">.{{ message.get_attachment.1 }}</a>
+                                            {% else %}
+                                            <div class="chat-chat-message-img-block">
+                                                <img src="{{ message.get_attachment.0 }}" class="chat-chat-message-img">
+                                            </div>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                    <div class="chat-chat-message-options">
+                                        <div class="chat-chat-message-copy{% if not message.text %} only-image{% endif %}" id="copy-message-{{ message.pk }}">
+                                            <img src="{% static 'img/chat-copy.svg' %}" alt="copy">
+                                        </div>
+                                        <div class="chat-chat-message-delete" id="delete-message-{{ message.pk }}">
+                                            <img src="{% static 'img/chat-close.svg' %}" alt="X">
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="chat-new-chat-block"{% if not current_chat %} style="display: flex;"{% endif %}>
+                        <div class="chat-new-block-top">
+                            <div class="chat-new-top-icons">
+                                <div class="chat-new-top-icon-block selected" id="new-icon-1">
+                                    <img src="{% static 'img/new-chat-1.webp' %}" class="chat-new-top-icon">
+                                </div>
+                                <div class="chat-new-top-icon-block" id="new-icon-2">
+                                    <img src="{% static 'img/new-chat-2.webp' %}" class="chat-new-top-icon">
+                                </div>
+                                <div class="chat-new-top-icon-block" id="new-icon-3">
+                                    <img src="{% static 'img/new-chat-3.webp' %}" class="chat-new-top-icon">
+                                </div>
+                            </div>
+                            <div class="chat-new-top-titles">
+                                <span class="chat-new-top-title">Тестовая нейросеть</span>
+                                <span class="chat-new-top-title">Создание картинок</span>
+                                <span class="chat-new-top-title">Для специалистов</span>
+                            </div>
+                            <div class="chat-new-top-samples">
+                                <div class="chat-new-top-samples-block selected">
+                                    {% for sample in new_chat_samples_1 %}
+                                        <div class="chat-new-top-sample chat-new-sample-click">
+                                            <img src="{{ sample.icon.url }}" class="chat-new-top-sample-icon">
+                                            <span>{{ sample.text }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="chat-new-top-samples-block">
+                                    {% for sample in new_chat_samples_2 %}
+                                        <div class="chat-new-top-sample {% if not user.get_subscription %}chat-clickable clickable-new-2-{{ sample.pk }}{% else %}chat-new-sample-click{% endif %}">
+                                            <img src="{{ sample.icon.url }}" class="chat-new-top-sample-icon">
+                                            <span>{{ sample.text }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="chat-new-top-samples-block">
+                                    <div class="chat-new-top-sample {% if not user.get_subscription or not user.get_subscription.tariff.samples_included %}chat-clickable clickable-tariffs{% else %}chat-new-top-open-samples{% endif %}">
+                                        <img src="{% static 'img/chat-sample-icon.svg' %}" class="chat-new-top-sample-icon">
+                                        <div class="chat-new-top-sample-right">
+                                            <span>Шаблоны</span>
+                                            <span class="chat-new-top-sample-description">Для часто повторяющихся запросов</span>
+                                        </div>
+                                    </div>
+                                    <div class="chat-new-top-sample chat-clickable clickable-new-3">
+                                        <img src="{% static 'img/new-chat-code.svg' %}" class="chat-new-top-sample-icon">
+                                        <div class="chat-new-top-sample-right">
+                                            <span class="chat-new-top-sample-name">Написание или анализ кода</span>
+                                            <span class="chat-new-top-sample-description">На любом языке программирования</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chat-new-top-links">
+                                <span class="chat-new-top-link chat-clickable clickable-new-1 selected">Больше примеров</span>
+                                <span class="chat-new-top-link chat-clickable {% if user.get_subscription %}clickable-new-2{% else %}clickable-tariffs{% endif %}">Подробнее</span>
+                                <span class="chat-new-top-link chat-clickable clickable-tutorial">Туториал</span>
+                            </div>
+                        </div>
+                        <div class="chat-auth-rules">Нейросеть иногда может путаться в фактах или иметь не самую актуальную информацию.</div>
+                    </div>
+                </div>
+                <div class="chat-chat-input-area">
+                    <div class="chat-chat-input-area-bottom">
+                        <div class="chat-chat-settings-wrapper">
+                            <div class="chat-chat-settings-block">
+                                <img src="{% static 'img/chat-settings-icon.svg' %}" alt="settings">
+                            </div>
+                            <div class="chat-chat-settings-bg"></div>
+                            <div class="chat-chat-settings">
+                                <div class="chat-chat-select-bg"></div>
+                                <span class="chat-chat-settings-label">Анализировать контекст диалога
+                                    <img src="{% static 'img/samples-help.svg' %}" alt="?" class="chat-samples-help-icon help-trigger" id="help-6">
+                                </span>
+                                <div class="chat-chat-settings-context-block">
+                                    <div class="chat-chat-settings-context-no{% if not user.use_context %} active{% endif %}">Нет</div>
+                                    <div class="chat-chat-settings-context-yes{% if user.use_context %} active{% endif %}">Да</div>
+                                </div>
+                                <span class="chat-chat-settings-label">Нейросеть
+                                    <img src="{% static 'img/samples-help.svg' %}" alt="?" class="chat-samples-help-icon help-trigger" id="help-3">
+                                </span>
+                                <div class="chat-chat-settings-selected-block" id="settings-selected-ai">
+                                    <span>{{ user.selected_ai }}</span><img src="{% static 'img/select-arrow.svg' %}" alt=">">
+                                    <div class="chat-chat-settings-select-block" id="settings-select-ai">
+                                        <div class="chat-chat-settings-select-option{% if user.selected_ai == 'GPT-3.5' %} selected{% endif %}{% if not user.check_gpt35 %} blocked{% endif %}" id="select-option-gpt35">GPT-3.5</div>
+                                        <div class="chat-chat-settings-select-option{% if user.selected_ai == 'GPT-4' %} selected{% endif %}{% if not user.check_gpt4 %} blocked{% endif %}" id="select-option-gpt4">GPT-4</div>
+                                    </div>
+                                </div>
+                                <span class="chat-chat-settings-label">Нейросеть для изображений
+                                    <img src="{% static 'img/samples-help.svg' %}" alt="?" class="chat-samples-help-icon help-trigger" id="help-4">
+                                </span>
+                                <div class="chat-chat-settings-selected-block{% if not user.has_img_ai %} blocked{% endif %}" id="settings-selected-img-ai">
+                                    <span>{{ user.selected_img_ai }}</span><img src="{% static 'img/select-arrow.svg' %}" alt=">">
+                                    <div class="chat-chat-settings-select-block" id="settings-select-img-ai">
+                                        <div class="chat-chat-settings-select-option{% if user.selected_img_ai == 'Stable Diffusion' %} selected{% endif %}{% if not user.check_sd %} blocked{% endif %}" id="select-option-sd">Stable Diffusion</div>
+                                        <div class="chat-chat-settings-select-option{% if user.selected_img_ai == 'Midjourney' %} selected{% endif %}{% if not user.check_mj %} blocked{% endif %}" id="select-option-mj">Midjourney</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-chat-textarea-block">
+                            <textarea class="chat-chat-textarea" rows="1" placeholder="Сообщение"></textarea>
+                            <textarea class="chat-chat-textarea-ghost"></textarea>
+                            <div class="m-chat-chat-options-background"></div>
+                            <div class="m-chat-chat-options">
+                                <img src="{% static 'img/chat-options.svg' %}" alt="options">
+                            </div>
+                            <div class="chat-chat-textarea-options">
+                                <div class="chat-chat-textarea-subblock" id="attach-file">
+                                    <svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1.1" viewBox="0 0 16 16" class="w-[22px] h-[22px]" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M10.404 5.11l-1.015-1.014-5.075 5.074c-0.841 0.841-0.841 2.204 0 3.044s2.204 0.841 3.045 0l6.090-6.089c1.402-1.401 1.402-3.673 0-5.074s-3.674-1.402-5.075 0l-6.394 6.393c-0.005 0.005-0.010 0.009-0.014 0.013-1.955 1.955-1.955 5.123 0 7.077s5.123 1.954 7.078 0c0.004-0.004 0.008-0.009 0.013-0.014l0.001 0.001 4.365-4.364-1.015-1.014-4.365 4.363c-0.005 0.004-0.009 0.009-0.013 0.013-1.392 1.392-3.656 1.392-5.048 0s-1.392-3.655 0-5.047c0.005-0.005 0.009-0.009 0.014-0.013l-0.001-0.001 6.395-6.393c0.839-0.84 2.205-0.84 3.045 0s0.839 2.205 0 3.044l-6.090 6.089c-0.28 0.28-0.735 0.28-1.015 0s-0.28-0.735 0-1.014l5.075-5.075z"></path></svg>
+                                    <span>Файл</span>
+                                    <input type="file" accept=".png,.jpg,.jpeg,.webp,.gif" class="chat-chat-textarea-file">
+                                </div>
+                                <div class="chat-chat-textarea-subblock{% if not user.get_subscription or not user.get_subscription.tariff.samples_included %} blocked{% endif %}" id="open-samples">
+                                    <img src="{% static 'img/chat-sample-icon.svg' %}" alt="samples">
+                                    <span>Шаблоны</span>
+                                </div>
+                                <div class="chat-chat-textarea-send" id="send-message">
+                                    <img src="{% static 'img/chat-send.svg' %}" alt="send" class="chat-chat-send">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% if user.is_authenticated %}
+                <div class="chat-samples-container">
+                    {% csrf_token %}
+                    <div class="chat-samples-menu">
+                        <div class="chat-samples-menu-subblock selected" id="chat-samples-public">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" height="16" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path></svg>
+                            <span>Публичные</span>
+                        </div>
+                        <div class="chat-samples-menu-subblock" id="chat-samples-private">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" height="16" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M832 464h-68V240c0-70.7-57.3-128-128-128H388c-70.7 0-128 57.3-128 128v224h-68c-17.7 0-32 14.3-32 32v384c0 17.7 14.3 32 32 32h640c17.7 0 32-14.3 32-32V496c0-17.7-14.3-32-32-32zM332 240c0-30.9 25.1-56 56-56h248c30.9 0 56 25.1 56 56v224H332V240zm460 600H232V536h560v304zM484 701v53c0 4.4 3.6 8 8 8h40c4.4 0 8-3.6 8-8v-53a48.01 48.01 0 1 0-56 0z"></path></svg>
+                            <span>Личные</span>
+                        </div>
+                        <div class="chat-samples-menu-subblock" id="chat-samples-favorites">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" height="16" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M923 283.6a260.04 260.04 0 0 0-56.9-82.8 264.4 264.4 0 0 0-84-55.5A265.34 265.34 0 0 0 679.7 125c-49.3 0-97.4 13.5-139.2 39-10 6.1-19.5 12.8-28.5 20.1-9-7.3-18.5-14-28.5-20.1-41.8-25.5-89.9-39-139.2-39-35.5 0-69.9 6.8-102.4 20.3-31.4 13-59.7 31.7-84 55.5a258.44 258.44 0 0 0-56.9 82.8c-13.9 32.3-21 66.6-21 101.9 0 33.3 6.8 68 20.3 103.3 11.3 29.5 27.5 60.1 48.2 91 32.8 48.9 77.9 99.9 133.9 151.6 92.8 85.7 184.7 144.9 188.6 147.3l23.7 15.2c10.5 6.7 24 6.7 34.5 0l23.7-15.2c3.9-2.5 95.7-61.6 188.6-147.3 56-51.7 101.1-102.7 133.9-151.6 20.7-30.9 37-61.5 48.2-91 13.5-35.3 20.3-70 20.3-103.3.1-35.3-7-69.6-20.9-101.9zM512 814.8S156 586.7 156 385.5C156 283.6 240.3 201 344.3 201c73.1 0 136.5 40.8 167.7 100.4C543.2 241.8 606.6 201 679.7 201c104 0 188.3 82.6 188.3 184.5 0 201.2-356 429.3-356 429.3z"></path></svg>
+                            <span>Избранные</span>
+                        </div>
+                        <div class="chat-samples-menu-subblock" id="chat-samples-create">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" height="16" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M854.6 288.6L639.4 73.4c-6-6-14.1-9.4-22.6-9.4H192c-17.7 0-32 14.3-32 32v832c0 17.7 14.3 32 32 32h640c17.7 0 32-14.3 32-32V311.3c0-8.5-3.4-16.7-9.4-22.7zM790.2 326H602V137.8L790.2 326zm1.8 562H232V136h302v216a42 42 0 0 0 42 42h216v494zM544 472c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v108H372c-4.4 0-8 3.6-8 8v48c0 4.4 3.6 8 8 8h108v108c0 4.4 3.6 8 8 8h48c4.4 0 8-3.6 8-8V644h108c4.4 0 8-3.6 8-8v-48c0-4.4-3.6-8-8-8H544V472z"></path></svg>
+                            <span>Создать</span>
+                        </div>
+                        <div class="chat-samples-menu-subblock" id="chat-samples-close">
+                            <img src="{% static 'img/chat-close.svg' %}">
+                            <span>Закрыть</span>
+                        </div>
+                    </div>
+                    <div class="chat-samples-content-top">
+                        <div class="chat-samples-categories-block">
+                            <span>Категория: </span>
+                            <span class="chat-samples-current-category">Всё подряд</span>
+                            <img src="{% static 'img/samples-categories-arrow.svg' %}" alt=">" id="open-categories">
+                            <div class="chat-samples-categories">
+                                <span class="chat-samples-category category-all" id="category-all">Всё подряд</span>
+                                {% for cat in sample_categories %}
+                                    <span class="chat-samples-category category-{{ cat.pk }}">{{ cat.name }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="chat-samples-search-block">
+                            <img src="{% static 'img/samples-search.svg' %}" alt="search">
+                            <input type="text" class="chat-samples-search" placeholder="Найти шаблон">
+                            <div class="chat-samples-search-hide">
+                                <img src="{% static 'img/chat-close.svg' %}" alt="X">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-samples-content chat-samples-public">
+                        <div class="chat-samples-nothing">Ничего не нашлось</div>
+                        <div class="chat-samples-block">
+                            {% for sample in samples %}
+                                <div class="chat-sample-wrapper">
+                                    <div class="chat-sample-block" id="sample-{{ sample.pk }}">
+                                        <div class="chat-sample-top">
+                                            <div class="chat-sample-tags">
+                                                {% for cat in sample.get_categories %}
+                                                    <div class="chat-sample-tag category-{{ cat.pk }}">{{ cat.name }}</div>
+                                                {% endfor %}
+                                                <div class="chat-sample-tag-more" id="help-public-sample-{{ sample.pk }}">
+                                                    <span></span>
+                                                </div>
+                                            </div>
+                                            <div class="chat-sample-like-block sample-{{ sample.pk }}">
+                                                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" height="16" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M923 283.6a260.04 260.04 0 0 0-56.9-82.8 264.4 264.4 0 0 0-84-55.5A265.34 265.34 0 0 0 679.7 125c-49.3 0-97.4 13.5-139.2 39-10 6.1-19.5 12.8-28.5 20.1-9-7.3-18.5-14-28.5-20.1-41.8-25.5-89.9-39-139.2-39-35.5 0-69.9 6.8-102.4 20.3-31.4 13-59.7 31.7-84 55.5a258.44 258.44 0 0 0-56.9 82.8c-13.9 32.3-21 66.6-21 101.9 0 33.3 6.8 68 20.3 103.3 11.3 29.5 27.5 60.1 48.2 91 32.8 48.9 77.9 99.9 133.9 151.6 92.8 85.7 184.7 144.9 188.6 147.3l23.7 15.2c10.5 6.7 24 6.7 34.5 0l23.7-15.2c3.9-2.5 95.7-61.6 188.6-147.3 56-51.7 101.1-102.7 133.9-151.6 20.7-30.9 37-61.5 48.2-91 13.5-35.3 20.3-70 20.3-103.3.1-35.3-7-69.6-20.9-101.9zM512 814.8S156 586.7 156 385.5C156 283.6 240.3 201 344.3 201c73.1 0 136.5 40.8 167.7 100.4C543.2 241.8 606.6 201 679.7 201c104 0 188.3 82.6 188.3 184.5 0 201.2-356 429.3-356 429.3z"></path></svg>
+                                            </div>
+                                        </div>
+                                        <h2 class="chat-sample-name">{{ sample.name }}</h2>
+                                        <p class="chat-sample-description">{{ sample.description }}</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="chat-samples-content chat-samples-private">
+                        <div class="chat-samples-nothing">Ничего не нашлось</div>
+                        <div class="chat-samples-block">
+                            {% for sample in user.get_samples %}
+                                <div class="chat-sample-wrapper">
+                                    <div class="chat-sample-block" id="sample-{{ sample.pk }}">
+                                        <div class="chat-sample-top">
+                                            <div class="chat-sample-tags">
+                                                {% for cat in sample.get_categories %}
+                                                    <div class="chat-sample-tag category-{{ cat.pk }}">{{ cat.name }}</div>
+                                                {% endfor %}
+                                                <div class="chat-sample-tag-more" id="help-private-sample-{{ sample.pk }}">
+                                                    <span></span>
+                                                </div>
+                                            </div>
+                                            <div class="chat-sample-delete-block sample-{{ sample.pk }}">
+                                                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" fill-rule="evenodd" height="16" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M799.855 166.312c.023.007.043.018.084.059l57.69 57.69c.041.041.052.06.059.084a.118.118 0 0 1 0 .069c-.007.023-.018.042-.059.083L569.926 512l287.703 287.703c.041.04.052.06.059.083a.118.118 0 0 1 0 .07c-.007.022-.018.042-.059.083l-57.69 57.69c-.041.041-.06.052-.084.059a.118.118 0 0 1-.069 0c-.023-.007-.042-.018-.083-.059L512 569.926 224.297 857.629c-.04.041-.06.052-.083.059a.118.118 0 0 1-.07 0c-.022-.007-.042-.018-.083-.059l-57.69-57.69c-.041-.041-.052-.06-.059-.084a.118.118 0 0 1 0-.069c.007-.023.018-.042.059-.083L454.073 512 166.371 224.297c-.041-.04-.052-.06-.059-.083a.118.118 0 0 1 0-.07c.007-.022.018-.042.059-.083l57.69-57.69c.041-.041.06-.052.084-.059a.118.118 0 0 1 .069 0c.023.007.042.018.083.059L512 454.073l287.703-287.702c.04-.041.06-.052.083-.059a.118.118 0 0 1 .07 0Z"></path></svg>
+                                            </div>
+                                        </div>
+                                        <h2 class="chat-sample-name">{{ sample.name }}</h2>
+                                        <p class="chat-sample-description">{{ sample.description }}</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <span class="chat-samples-empty"{% if user.get_samples %} style="display: none;"{% endif %}>Вы пока не добавили ни одного личного шаблона.</span>
+                        <div class="chat-samples-button"{% if user.get_samples %} style="display: none;"{% endif %}>Создать шаблон</div>
+                    </div>
+                    <div class="chat-samples-content chat-samples-favorites">
+                        <div class="chat-samples-nothing">Ничего не нашлось</div>
+                        <div class="chat-samples-block">
+                            {% for sample in user.get_liked_samples %}
+                                <div class="chat-sample-wrapper">
+                                    <div class="chat-sample-block" id="sample-{{ sample.pk }}">
+                                        <div class="chat-sample-top">
+                                            <div class="chat-sample-tags">
+                                                {% for cat in sample.get_categories %}
+                                                    <div class="chat-sample-tag category-{{ cat.pk }}">{{ cat.name }}</div>
+                                                {% endfor %}
+                                                <div class="chat-sample-tag-more" id="help-favorites-sample-{{ sample.pk }}">
+                                                    <span></span>
+                                                </div>
+                                            </div>
+                                            <div class="chat-sample-unlike-block sample-{{ sample.pk }}">
+                                                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" height="16" width="16" xmlns="http://www.w3.org/2000/svg"><path d="M923 283.6a260.04 260.04 0 0 0-56.9-82.8 264.4 264.4 0 0 0-84-55.5A265.34 265.34 0 0 0 679.7 125c-49.3 0-97.4 13.5-139.2 39-10 6.1-19.5 12.8-28.5 20.1-9-7.3-18.5-14-28.5-20.1-41.8-25.5-89.9-39-139.2-39-35.5 0-69.9 6.8-102.4 20.3-31.4 13-59.7 31.7-84 55.5a258.44 258.44 0 0 0-56.9 82.8c-13.9 32.3-21 66.6-21 101.9 0 33.3 6.8 68 20.3 103.3 11.3 29.5 27.5 60.1 48.2 91 32.8 48.9 77.9 99.9 133.9 151.6 92.8 85.7 184.7 144.9 188.6 147.3l23.7 15.2c10.5 6.7 24 6.7 34.5 0l23.7-15.2c3.9-2.5 95.7-61.6 188.6-147.3 56-51.7 101.1-102.7 133.9-151.6 20.7-30.9 37-61.5 48.2-91 13.5-35.3 20.3-70 20.3-103.3.1-35.3-7-69.6-20.9-101.9zM512 814.8S156 586.7 156 385.5C156 283.6 240.3 201 344.3 201c73.1 0 136.5 40.8 167.7 100.4C543.2 241.8 606.6 201 679.7 201c104 0 188.3 82.6 188.3 184.5 0 201.2-356 429.3-356 429.3z"></path></svg>
+                                            </div>
+                                        </div>
+                                        <h2 class="chat-sample-name">{{ sample.name }}</h2>
+                                        <p class="chat-sample-description">{{ sample.description }}</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <span class="chat-samples-empty"{% if user.get_liked_samples %} style="display: none;"{% endif %}>Здесь будут ваши избранные шаблоны.</span>
+                    </div>
+                    <div class="chat-samples-content chat-samples-create">
+                        <span class="chat-samples-label">Название</span>
+                        <textarea class="chat-samples-input name" maxlength="50" rows="1" placeholder="Пример: Перевод текста"></textarea>
+                        <span class="chat-samples-label">Описание (не обязательно)</span>
+                        <textarea class="chat-samples-input description" maxlength="100" rows="2" placeholder="Пример: Переведёт текст на указанный язык"></textarea>
+                        <span class="chat-samples-label">Содержимое шаблона
+                            <img src="{% static 'img/samples-help.svg' %}" alt="?" class="chat-samples-help-icon help-trigger" id="help-1">
+                        </span>
+                        <textarea class="chat-samples-input text" rows="4" placeholder="Пример: Переведи на [TEXT2] язык следующий текст: [TEXT]"></textarea>
+                        <div class="chat-samples-note" style="display: none;">Подробно о том, как составлять шаблон, можно прочитать <a href="#">в этой инструкции</a></div>
+                        <span class="chat-samples-label">Поля ввода
+                            <img src="{% static 'img/samples-help.svg' %}" alt="?" class="chat-samples-help-icon help-trigger" id="help-2">
+                        </span>
+                        <div class="chat-samples-note chat-samples-variables-note">Здесь появятся настройки, если вы укажете [TEXT] в содержимом шаблона.</div>
+                        <div class="chat-samples-variables-block">
+                            <span>Переменная</span>
+                            <span>Содержимое</span>
+                            <span>[TEXT]</span>
+                            <div id="var-text">
+                                <span>Не используется в вашем шаблоне</span>
+                                <input type="text" class="chat-samples-input variable" maxlength="50" placeholder="Подсказка для ввода">
+                            </div>
+                            <span>[TEXT2]</span>
+                            <div id="var-text2">
+                                <span>Не используется в вашем шаблоне</span>
+                                <input type="text" class="chat-samples-input variable" maxlength="50" placeholder="Подсказка для ввода">
+                            </div>
+                            <span>[TEXT3]</span>
+                            <div id="var-text3">
+                                <span>Не используется в вашем шаблоне</span>
+                                <input type="text" class="chat-samples-input variable" maxlength="50" placeholder="Подсказка для ввода">
+                            </div>
+                        </div>
+                        <span class="chat-samples-label">Категории</span>
+                        <div class="chat-samples-create-categories">
+                            {% for cat in sample_categories %}
+                                <div class="chat-samples-create-category">
+                                    <div class="chat-samples-checkbox-block"><input type="checkbox" class="chat-samples-checkbox" id="checkbox-{{ cat.pk }}"></div>
+                                    <span>{{ cat.name }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="chat-samples-create-button">Создать</div>
+                        <span class="chat-samples-warning" id="warning-name">Не заполнено название</span>
+                        <span class="chat-samples-warning" id="warning-text">Не заполнен шаблон</span>
+                        <span class="chat-samples-warning" id="warning-var-text" style="display: none;">Не заполнен подсказка для поля [TEXT]</span>
+                        <span class="chat-samples-warning" id="warning-var-text2" style="display: none;">Не заполнен подсказка для поля [TEXT2]</span>
+                        <span class="chat-samples-warning" id="warning-var-text3" style="display: none;">Не заполнен подсказка для поля [TEXT3]</span>
+                        <span class="chat-samples-warning" id="warning-text2-not-text" style="display: none;">Вы используете [TEXT2], но не используете [TEXT]</span>
+                        <span class="chat-samples-warning" id="warning-text3-not-text" style="display: none;">Вы используете [TEXT3], но не используете [TEXT].</span>
+                    </div>
+                </div>
+            {% endif %}
+            <div {% if user.is_authenticated %}class="chat-background chat-background-clickable"{% else %}class="chat-background" style="display: flex;"{% endif %}>
+                {% if not user.is_authenticated %}
+                    <div class="chat-background-content" id="bg-auth"{% if action == 'none' %} style="display: flex;"{% endif %}>
+                        <span class="chat-auth-label">Вход или регистрация в Chad</span>
+                        <a class="chat-auth-social yandex">
+                            <img src="{% static 'img/chat-auth-yandex.svg' %}" alt="yandex">
+                            <span>Яндекс</span>
+                        </a>
+                        <a class="chat-auth-social vk">
+                            <img src="{% static 'img/chat-auth-vk.svg' %}" alt="vk">
+                            <span>Вконтакте</span>
+                        </a>
+                        <a href="{% url 'social:begin' 'google-oauth2' %}?next=/chat/" class="chat-auth-social google">
+                            <img src="{% static 'img/chat-auth-google.svg' %}" alt="google">
+                            <span>Google</span>
+                        </a>
+                        <span class="chat-auth-label">Через почту</span>
+                        <div class="chat-auth-email chat-clickable clickable-login">Укажите email адрес</div>
+                        <span class="chat-auth-rules">Продолжая, вы соглашаетесь с <a href="{% url 'main:rules' %}" target="_blank">публичной офертой</a></span>
+                    </div>
+                    <div class="chat-background-content" id="bg-login"{% if action == 'login' %} style="display: flex;"{% endif %}>
+                        <div class="chat-bg-top">
+                            <div class="chat-bg-back chat-clickable clickable-auth">
+                                <img src="{% static 'img/chat-back.svg' %}" alt="<" class="chat-bg-img">
+                            </div>
+                            <span>Авторизация на сайте</span>
+                        </div>
+                        <form action="{% url 'authentication:login' %}" class="chat-auth-form" method="post">
+                            {% csrf_token %}
+                            {% for field in login_form %}
+                                <div class="chat-auth-input-block{% if action == 'login' %} active{% endif %}" id="login-block-{{ field.name }}">
+                                    <span class="chat-auth-placeholder{% if action == 'login' %} active{% endif %}">{{ field.label }}</span>
+                                    {{ field }}
+                                </div>
+                                {{ field.errors }}
+                            {% endfor %}
+                            <input type="submit" class="chat-button chat-auth-submit" value="Войти">
+                            <span class="chat-auth-rules">Ещё не зарегистрированы? <span class="chat-auth-register chat-clickable clickable-register">Зарегистрироваться</span></span>
+                        </form>
+                    </div>
+                    <div class="chat-background-content" id="bg-register"{% if action == 'register' %} style="display: flex;"{% endif %}>
+                        <div class="chat-bg-top">
+                            <div class="chat-bg-back chat-clickable clickable-login">
+                                <img src="{% static 'img/chat-back.svg' %}" alt="<" class="chat-bg-img">
+                            </div>
+                            <span>Регистрация</span>
+                        </div>
+                        <form action="{% url 'authentication:registration' %}" class="chat-auth-form" method="post">
+                            {% csrf_token %}
+                            {% for field in register_form %}
+                                {% if field.name != 'captcha' %}
+                                    <div class="chat-auth-input-block{% if action == 'register' %} active{% endif %}">
+                                        <span class="chat-auth-placeholder{% if action == 'register' %} active{% endif %}">{{ field.label }}</span>
+                                        {{ field }}
+                                    </div>
+                                {% else %}
+                                    {{ field }}
+                                {% endif %}
+                                {{ field.errors }}
+                            {% endfor %}
+                            <input type="submit" class="chat-button chat-auth-submit" value="Зарегистрироваться">
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="chat-background-content" id="bg-lk">
+                        <div class="chat-bg-top">
+                            <span>Личный кабинет</span>
+                            <div class="chat-bg-close">
+                                <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                            </div>
+                        </div>
+                        <div class="chat-li-block chat-clickable clickable-subscription">
+                            <img src="{% static 'img/chat-tariffs-icon.svg' %}" alt="tarif" class="chat-bg-img">
+                            <span>Тариф и подписка</span>
+                        </div>
+                        <div class="chat-li-block chat-clickable clickable-settings">
+                            <img src="{% static 'img/chat-lk-settings.svg' %}" alt="settings" class="chat-bg-img">
+                            <span>Настройки аккаунта</span>
+                        </div>
+                        <a href="{% url 'authentication:logout' %}" class="chat-li-block">
+                            <img src="{% static 'img/chat-lk-logout.svg' %}" alt="logout" class="chat-bg-img">
+                            <span>Выйти из аккаунта</span>
+                        </a>
+                    </div>
+                    <div class="chat-background-content" id="bg-subscription">
+                        <div class="chat-bg-top">
+                            <div class="chat-bg-back chat-clickable clickable-lk">
+                                <img src="{% static 'img/chat-back.svg' %}" alt="<" class="chat-bg-img">
+                            </div>
+                            <span>Тариф и подписка</span>
+                            <div class="chat-bg-close">
+                                <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                            </div>
+                        </div>
+                        <div class="chat-subscription-block">
+                            <span>Текущий тариф:</span><span>{% if user.get_subscription %}{{ user.get_subscription.tariff }}{% else %}Пробный{% endif %}</span>
+                        </div>
+                        <div class="chat-bg-buttons">
+                            <div class="chat-button chat-clickable clickable-tariffs" id="get-subscription">Оформить подписку</div>
+                            <div class="chat-button chat-clickable clickable-requests">Докупить запросы</div>
+                        </div>          
+                    </div>
+                    <div class="chat-background-content" id="bg-settings">
+                        <div class="chat-bg-top">
+                            <div class="chat-bg-back chat-clickable clickable-lk">
+                                <img src="{% static 'img/chat-back.svg' %}" alt="<" class="chat-bg-img">
+                            </div>
+                            <span>Настройки</span>
+                            <div class="chat-bg-close">
+                                <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                            </div>
+                        </div>
+                        <div class="chat-li-block chat-clickable clickable-privacy">
+                            <img src="{% static 'img/chat-settings-privacy.svg' %}" alt="privacy" class="chat-bg-img">
+                            <span>Приватность и безопасность</span>
+                        </div>
+                    </div>
+                    <div class="chat-background-content" id="bg-privacy">
+                        <div class="chat-bg-top">
+                            <div class="chat-bg-back chat-clickable clickable-settings">
+                                <img src="{% static 'img/chat-back.svg' %}" alt="<" class="chat-bg-img">
+                            </div>
+                            <span>Приватность и безопасность</span>
+                            <div class="chat-bg-close">
+                                <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                            </div>
+                        </div>
+                        <div class="chat-li-block">
+                            <span>Удалить аккаунт</span>
+                        </div>
+                    </div>
+                    <div class="chat-background-content" id="bg-news">
+                        <div class="chat-bg-top">
+                            <span>Новости и поддержка</span>
+                            <div class="chat-bg-close">
+                                <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                            </div>
+                        </div>
+                        <a href="#" class="chat-news-li-block">
+                            <img src="{% static 'img/chat-news-icon.svg' %}" alt="telegram" class="chat-bg-img">
+                            <div>
+                                <div>Телеграмм-канал</div>
+                                <div class="chat-news-description">Новости и чат</div>
+                            </div>
+                        </a>
+                        <a href="{% url 'main:faq' %}" class="chat-news-li-block">
+                            <img src="{% static 'img/chat-faq.svg' %}" alt="faq" class="chat-bg-img">
+                            <div>
+                                <div>Вопросы и ответы</div>
+                                <div class="chat-news-description">Часто задаваемые вопросы</div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="chat-background-content" id="bg-tariffs">
+                        <div class="chat-tariffs-content">
+                            {% for tariff in tariffs %}
+                                <div class="chat-tariff-block{% if tariff.most_chosen %} most-chosen{% endif %}">
+                                    {% if tariff.most_chosen %}
+                                        <img src="{% static 'img/tariffs-most-chosen.png' %}" class="chat-tariff-most-chosen-img">
+                                    {% endif %}
+                                    <h4 class="chat-tariff-name">{{ tariff.name|title }}</h4>
+                                    <div class="chat-tariffs">
+                                        {% for detail in tariff.get_characteristics %}
+                                            <div class="chat-tariff-li">
+                                                <img src="{% static 'img/business-top-li.svg' %}" class="chat-tariff-li-img">
+                                                <span>{{ detail }}</span>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <span class="chat-tariff-price">{{ tariff.price }} руб/мес</span>
+                                    <div class="button chat-tariff-button">Выбрать</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <span class="chat-auth-rules">Нажимая на кнопку "Выбрать", вы соглашаетесь с <a href="{% url 'main:rules' %}">публичной офертой</a></span>
+                    </div>
+                    <div class="chat-background-content" id="bg-file">
+                        <div class="chat-bg-top">
+                            <span>Прикреплённые файлы</span>
+                            <div class="chat-bg-close">
+                                <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                            </div>
+                        </div>
+                        <div class="chat-bg-file-block">
+                            <img src="{% static 'img/chat-bg-file-icon.svg' %}">
+                            <span></span>
+                        </div>
+                        <div class="chat-bg-file-buttons">
+                            <div class="chat-button" id="change-file">Изменить</div>
+                            <div class="chat-button" id="remove-file">Убрать</div>
+                        </div>
+                    </div>
+                    <div class="chat-background-content" id="bg-requests">
+                        <div class="chat-bg-top">
+                            <div class="chat-bg-back chat-clickable clickable-subscription">
+                                <img src="{% static 'img/chat-back.svg' %}" alt="<" class="chat-bg-img">
+                            </div>
+                            <span>Доступные запросы</span>
+                            <div class="chat-bg-close">
+                                <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                            </div>
+                        </div>
+                        <div class="chat-bg-requests">
+                            <div class="chat-bg-request-block">
+                                <span>GPT-3.5</span>
+                                <div class="chat-bg-request-bottom">
+                                    <span>Осталось по подписке*:</span>
+                                    <span class="chat-bg-request-sub" id="request-sub-GPT35">{{ user.get_month_gpt35 }}</span>
+                                    <span>Дополнительно на аккаунте:</span>
+                                    <span class="chat-bg-request-acc" id="request-acc-GPT35">{{ user.requests_GPT35 }}</span>
+                                    <span>Докупить:</span>
+                                    <input type="number" min="0" class="chat-bg-request-input" id="request-GPT35">
+                                </div>
+                            </div>
+                            <div class="chat-bg-request-block">
+                                <span>GPT-4</span>
+                                <div class="chat-bg-request-bottom">
+                                    <span>Осталось по подписке:</span>
+                                    <span class="chat-bg-request-sub" id="request-sub-GPT4">{{ user.get_month_gpt4 }}</span>
+                                    <span>Дополнительно на аккаунте:</span>
+                                    <span class="chat-bg-request-acc" id="request-acc-GPT4">{{ user.requests_GPT4 }}</span>
+                                    <span>Докупить:</span>
+                                    <input type="number" min="0" class="chat-bg-request-input" id="request-GPT4">
+                                </div>
+                            </div>
+                            <div class="chat-bg-request-block">
+                                <span>Vision</span>
+                                <div class="chat-bg-request-bottom">
+                                    <span>Осталось по подписке:</span>
+                                    <span class="chat-bg-request-sub" id="request-sub-VS">{{ user.get_month_vs }}</span>
+                                    <span>Дополнительно на аккаунте:</span>
+                                    <span class="chat-bg-request-acc" id="request-acc-VS">{{ user.requests_VS }}</span>
+                                    <span>Докупить:</span>
+                                    <input type="number" min="0" class="chat-bg-request-input" id="request-VS">
+                                </div>
+                            </div>
+                            <div class="chat-bg-request-block">
+                                <span>Stable Diffusion</span>
+                                <div class="chat-bg-request-bottom">
+                                    <span>Осталось по подписке:</span>
+                                    <span class="chat-bg-request-sub" id="request-sub-SD">{{ user.get_month_sd }}</span>
+                                    <span>Дополнительно на аккаунте:</span>
+                                    <span class="chat-bg-request-acc" id="request-acc-SD">{{ user.requests_SD }}</span>
+                                    <span>Докупить:</span>
+                                    <input type="number" min="0" class="chat-bg-request-input" id="request-SD">
+                                </div>
+                            </div>
+                            <div class="chat-bg-request-block">
+                                <span>Midjourney</span>
+                                <div class="chat-bg-request-bottom">
+                                    <span>Осталось по подписке:</span>
+                                    <span class="chat-bg-request-sub" id="request-sub-MJ">{{ user.get_month_mj }}</span>
+                                    <span>Дополнительно на аккаунте:</span>
+                                    <span class="chat-bg-request-acc" id="request-acc-MJ">{{ user.requests_MJ }}</span>
+                                    <span>Докупить:</span>
+                                    <input type="number" min="0" class="chat-bg-request-input" id="request-MJ">
+                                </div>
+                            </div>
+                            <span class="chat-auth-rules">* Если по подписке остались запросы GPT-4, их можно использовать в качестве запросов GPT-3.5</span>
+                        </div>
+                        <div class="chat-bg-request-total-block">
+                            <span>Итого:</span>
+                            <span class="chat-bg-request-total">0 &#8381;</span>
+                        </div>
+                        <div class="chat-button chat-button-request">Оплатить</div>
+                        <span class="chat-auth-rules">Нажимая на кнопку "Оплатить", вы соглашаетесь с <a href="{% url 'main:rules' %}">публичной офертой</a></span>
+                    </div>
+                    <div class="chat-background-content" id="bg-notification">
+                        <div class="chat-bg-top">
+                            <span id="notification-title"></span>
+                            <div class="chat-bg-close">
+                                <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                            </div>
+                        </div>
+                        <p id="notification-text"></p>
+                        <div class="chat-bg-buttons">
+                            <div class="chat-bg-notification-button chat-clickable clickable-tariffs">Выбрать тариф</div>
+                            <div class="chat-bg-notification-button chat-clickable clickable-requests">Докупить запросы</div>
+                        </div>
+                    </div>
+                    <div class="chat-background-content" id="bg-new-1">
+                        <div class="chat-bg-top">
+                            <span>Что спросить у бота</span>
+                            <div class="chat-bg-close">
+                                <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                            </div>
+                        </div>
+                        <div class="chat-bg-new-block">
+                            {% for category in new_chat_categories_1 %}
+                                <div class="chat-bg-new-category">{{ category.name }}</div>
+                                {% for sample in category.get_samples %}
+                                <div class="chat-bg-new-sample-block chat-new-sample-click">
+                                    <img src="{% static 'img/new-chat-message.svg' %}">
+                                    <span>{{ sample.text }}</span>
+                                </div>
+                                {% endfor %}
+                                <div class="chat-bg-new-description"><i>{% if category.description %}{{ category.description|safe }}{% endif %}</i></div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="chat-background-content" id="bg-new-2">
+                        <div class="chat-bg-top">
+                            <span>Что бот может нарисовать</span>
+                            <div class="chat-bg-close">
+                                <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                            </div>
+                        </div>
+                        <div class="chat-bg-new-block">
+                            {% for category in new_chat_categories_2 %}
+                                <div class="chat-bg-new-category">{{ category.name }}</div>
+                                {% for sample in category.get_samples %}
+                                <div class="chat-bg-new-sample-block chat-new-sample-click">
+                                    <img src="{% static 'img/new-chat-message.svg' %}">
+                                    <span>{{ sample.text }}</span>
+                                </div>
+                                {% endfor %}
+                                <div class="chat-bg-new-description"><i>{% if category.description %}{{ category.description|safe }}{% endif %}</i></div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="chat-background-content" id="bg-new-3">
+                        <div class="chat-bg-top">
+                            <span>Написание и анализ кода</span>
+                            <div class="chat-bg-close">
+                                <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                            </div>
+                        </div>
+                        <div class="chat-bg-new-block">
+                            {% for category in new_chat_categories_3 %}
+                                <div class="chat-bg-new-category">{{ category.name }}</div>
+                                {% for sample in category.get_samples %}
+                                <div class="chat-bg-new-sample-block chat-new-sample-click">
+                                    <img src="{% static 'img/new-chat-message.svg' %}">
+                                    <span>{{ sample.text }}</span>
+                                </div>
+                                {% endfor %}
+                                <div class="chat-bg-new-description"><i>{% if category.description %}{{ category.description|safe }}{% endif %}</i></div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="chat-background-content" id="bg-tutorial">
+                        <div class="chat-bg-top">
+                            <span>Туториал</span>
+                            <div class="chat-bg-close">
+                                <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                            </div>
+                        </div>
+                        <div class="chat-bg-instructions">
+                            {% for instruction in instructions %}
+                                <span>{{ instruction.name }}</span>
+                                <span class="chat-bg-tutorial-description">{{ instruction.description }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% for sample in new_chat_samples_2 %}
+                        <div class="chat-background-content chat-bg-new-free-version" id="bg-new-2-{{ sample.pk }}">
+                            <div class="chat-bg-top">
+                                <span>Создание картинок</span>
+                                <div class="chat-bg-close">
+                                    <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                                </div>
+                            </div>
+                            <div class="chat-bg-new-block">
+                                <p>Создание картинок доступно в платных тарифах Chad.</p>
+                                <p>Ниже - примеры того, что можно ожидать по запросу:<br>
+                                    <i>"{{ sample.text }}".</i>
+                                </p>
+                                {% if sample.check_sd %}
+                                <img src="/static/img/{{ sample.for_free_version.sd }}.png" alt="sd" class="chat-bg-new-img">
+                                <span class="chat-bg-new-ai">Нарисовано с помощью Stable Diffusion</span>
+                                {% endif %}
+                                {% if sample.check_mj %}
+                                <img src="/static/img/{{ sample.for_free_version.mj }}.png" alt="mj" class="chat-bg-new-img">
+                                <span class="chat-bg-new-ai">Нарисовано с помощью Midjourney</span>
+                                {% endif %}
+                                {% if sample.check_dl3 %}
+                                <img src="/static/img/{{ sample.for_free_version.dl3 }}.png" alt="dl3" class="chat-bg-new-img">
+                                <span class="chat-bg-new-ai">Нарисовано с помощью DALL·E 3</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <img src="{% static 'img/loader.svg' %}" alt="loading" class="chat-background-loader">
+                {% endif %}
+            </div>
+            <div class="chat-samples-help-bottom"></div>
+            <div class="chat-samples-help-left"></div>
+            <div class="chat-samples-help-right"></div>
+            <div class="chat-samples-help-block help-1">
+                <p>Этот текст будет отправлен боту при использовании шаблона.</p>
+                <p>Впишите [TEXT] туда, куда нужно подставить текст, введённый в чате.</p>
+                <p>Итоговое сообщение может быть обрезано при отправке, если оно слишком длинное.</p>
+            </div>
+            <div class="chat-samples-help-block help-2">
+                <p>[TEXT] - основное, больше поле ввода.</p>
+                <p>[TEXT2] и [TEXT3] - маленькие дополнительные поля ввода с лимитом в 100 символов.</p>
+            </div>
+            <div class="chat-samples-help-block help-3">
+                <p>Текст про доступные нейросети</p>
+            </div>
+            <div class="chat-samples-help-block help-4">
+                <p>Текст про доступные нейросети для изображений</p>
+            </div>
+            <div class="chat-samples-help-block help-5">
+                <p>Недоступно в выбранном тарифе</p>
+            </div>
+            <div class="chat-samples-help-block help-6">
+                <p>Текст про контекст диалога</p>
+            </div>
+            {% for sample in samples %}
+                <div class="chat-samples-help-block chat-tag-help help-public-sample-{{ sample.pk }}"></div>
+            {% endfor %}
+            {% for sample in user.get_samples %}
+                <div class="chat-samples-help-block chat-tag-help help-private-sample-{{ sample.pk }}"></div>
+            {% endfor %}
+            {% for sample in user.get_liked_samples %}
+                <div class="chat-samples-help-block chat-tag-help help-favorites-sample-{{ sample.pk }}"></div>
+            {% endfor %}
+            <div class="chat-sample-more-bg"></div>
+            <div class="help-bg"></div>
+        </div>
+    </body>
+</html>

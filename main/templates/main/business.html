@@ -1,0 +1,99 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block js %}
+<script src="{% static 'js/index.js' %}"></script>
+{% endblock %}
+{% block content %}
+<div class="business-top container">
+    <div class="business-top-left">
+        <h1 class="business-title use-free">Chad для бизнеса</h1>
+        <div>
+            <div class="index-li">
+                <img src="{% static 'img/business-top-li.svg' %}" alt="+" class="index-list-img">
+                <span>Любое количество участников команды.</span>
+            </div>
+            <div class="index-li">
+                <img src="{% static 'img/business-top-li.svg' %}" alt="+" class="index-list-img">
+                <span>Без ограничений по количеству символов и чатам.</span>
+            </div>
+            <div class="index-li">
+                <img src="{% static 'img/business-top-li.svg' %}" alt="+" class="index-list-img">
+                <span>Оплата через пополнение баланса.</span>
+            </div>
+        </div>
+        <div class="business-top-demo">
+            <a href="#" class="button index-big-button">Попробовать демо</a>
+            <span>Бесплатный тестовый период</span>
+        </div>
+    </div>
+    <img src="{% static 'img/business-top.png' %}" class="business-top-right">
+    <h1 class="business-title m-use-free">Chad для бизнеса</h1>
+</div>
+<div class="container"><h1 class="business-title">Наши клиенты</h1></div>
+<div class="business-clients container">
+    {% for client in clients %}
+        <img src="{{ client.image.url }}" class="business-client">
+    {% endfor %}
+</div>
+<div class="container"><h1 class="business-title">Особенности тарифа</h1></div>
+<div class="business-tariff container">
+    <div class="business-tariff-subblock">
+        <span class="business-tariff-number">01</span>
+        <h3 class="business-tariff-title">Пополнение через баланс</h3>
+        <p class="business-tariff-description">Сочинять стихи, написать пересказ заданного или страничку реферата. Написать пост для соцсети или в блог.</p>
+    </div>
+    <div class="business-tariff-subblock">
+        <span class="business-tariff-number">02</span>
+        <h3 class="business-tariff-title">Команда и доступ</h3>
+        <p class="business-tariff-description">У администратора есть доступ к пополнению. Вся остальная команда подключается по корпоративному промокоду. Почта участника команды может быть любой.</p>
+    </div>
+    <div class="business-tariff-subblock">
+        <span class="business-tariff-number">03</span>
+        <h3 class="business-tariff-title">Оплата по карте</h3>
+        <p class="business-tariff-description">Оплатить личный кабинет можно по карте. Минимальная сумма для пополнения для бизнеса — 1000 руб.</p>
+    </div>
+    <div class="business-tariff-subblock">
+        <span class="business-tariff-number">04</span>
+        <h3 class="business-tariff-title">Стоимость</h3>
+        <p class="business-tariff-description">Цена формируруется за 1000 токенов GPT. Они считаются в засимости от симоволов 1 токен = 1-5 токенов GPT. Посмотреть как они считаются и проверить количество можно тут.</p>
+    </div>
+</div>
+<div class="business-conditions container">
+    <div class="business-top-left">
+        <h1 class="business-title use-free">Условия</h1>
+        <div>
+            <div class="index-li">
+                <img src="{% static 'img/business-top-li.svg' %}" alt="+" class="index-list-img">
+                <span>Тариф зависит от количества участников команды, сферы применения и объема токенов.</span>
+            </div>
+            <div class="index-li">
+                <img src="{% static 'img/business-top-li.svg' %}" alt="+" class="index-list-img">
+                <span>Он определяется за 1000 токенов GPT.</span>
+            </div>
+            <div class="index-li">
+                <img src="{% static 'img/business-top-li.svg' %}" alt="+" class="index-list-img">
+                <span>Детали уточните у менеджера.</span>
+            </div>
+        </div>
+        <div class="business-top-demo">
+            <a href="#" class="button index-big-button">Запросить демо</a>
+        </div>
+    </div>
+    <img src="{% static 'img/business-conditions.png' %}" class="business-top-right">
+    <h1 class="business-title m-use-free">Условия</h1>
+</div>
+<div class="container"><h1 class="business-title">Частые вопросы</h1></div>
+<div class="business-faq container">
+    {% for faq in faqs %}
+    <div class="index-question-block" id="faq-{{ faq.pk }}">
+        <div class="index-question-top" id="question-{{ faq.pk }}">
+            <span class="index-question">{{ faq.question }}</span>
+            <div class="index-question-cross-block" id="cross-{{ faq.pk }}">
+                <img src="{% static 'img/faq-cross.svg' %}" alt="x" class="index-question-cross">
+            </div>
+        </div>
+        <div class="index-answer" id="answer-{{ faq.pk }}">{{ faq.answer }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

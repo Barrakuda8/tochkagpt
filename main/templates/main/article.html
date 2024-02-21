@@ -1,0 +1,12 @@
+{% extends 'main/light_base.html' %}
+{% load static %}
+{% block content %}
+<div class="rules-content container">
+    <div class="article-back">
+        <img src="{% static 'img/article-back.svg' %}" alt="<" class="article-back-arrow">
+        <a href="{% url 'main:blog' %}" class="article-back-link">Все статьи</a>
+    </div>
+    <img src="{{ article.photo.url }}" class="article-img">
+    {{ article.text|safe }}
+</div>
+{% endblock %}

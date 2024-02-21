@@ -1,0 +1,210 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block js %}
+<script src="{% static 'js/index.js' %}"></script>
+{% endblock %}
+{% block menu %}
+    <a href="#capabilities" class="header-menu-link">Что может</a>
+    <a href="#mechanism" class="header-menu-link">Как работает</a>
+    <a href="#reviews" class="header-menu-link">Отзывы</a>
+    <a href="#tariffs" class="header-menu-link">Тарифы</a>
+    <a href="{% url 'main:business' %}" class="header-menu-link">Для бизнеса</a>
+    <a href="#faq" class="header-menu-link">Вопросы</a>
+    <a href="{% url 'main:blog' %}" class="header-menu-link">Блог</a>
+{% endblock %}
+{% block content %}
+<div class="container index-top-block" name="top">
+    <div class="index-top-left">
+        <h1 class="index-top-left-title">ChatGPT на русском
+            и другие нейросети <br>в <span class="index-top-left-highlighted">одном сервисе<div class="index-top-left-highlighted-bg"></div></span></h1>
+        <p class="index-top-left-text">Chad работает без VPN и номера. Midjourney, Stable Diffusion, Dalle-e и Chat GPT-4/3.5.</p>
+        <a href="#" class="button index-big-button use-free">Использовать бесплатно</a>
+    </div>
+    <div class="index-top-right">
+        <img src="{% static 'img/top-1.png' %}" alt="1" id="index-top-img-1">
+        <img src="{% static 'img/top-2.png' %}" alt="2" id="index-top-img-2">
+        <img src="{% static 'img/top-3.png' %}" alt="3" id="index-top-img-3">
+        <img src="{% static 'img/top-4.png' %}" alt="4" id="index-top-img-4">
+        <img src="{% static 'img/top-5.png' %}" alt="5" id="index-top-img-5">
+        <img src="{% static 'img/top-6.png' %}" alt="6" id="index-top-img-6">
+        <img src="{% static 'img/top-7.png' %}" alt="7" id="index-top-img-7">
+    </div>
+    <a href="#" class="button index-big-button m-use-free">Использовать бесплатно</a>
+</div>
+<div class="container index-capabilities-block" id="capabilities">
+    <div class="index-capabilities-subblock">
+        <h3 class="index-capabilities-title">ChatGPT</h3>
+        <p class="index-capabilities-text">Доступ к GPT-3.5 и GPT-4 версии нейросети. Для работы с текстом и кодом.</p>
+        <img src="{% static 'img/capabilities-1.png' %}" alt="1" class="index-capabilities-img">
+    </div>
+    <div class="index-capabilities-subblock">
+        <h3 class="index-capabilities-title">Midjorney и Dalle</h3>
+        <p class="index-capabilities-text">Искусственный интеллект нарисует картинку по описанию. В боте доступны Midjorney V5 и Dall-e 3.</p>
+        <img src="{% static 'img/capabilities-2.png' %}" alt="2" class="index-capabilities-img">
+    </div>
+    <div class="index-capabilities-subblock">
+        <h3 class="index-capabilities-title">Библиотека промтов</h3>
+        <p class="index-capabilities-text">Шаблоны запросов к нейросетям с качественными ответами. Можно добавлять свои.</p>
+        <div class="index-capabilities-imgs">
+            <img src="{% static 'img/capabilities-3.png' %}" alt="3" class="index-capabilities-img" id="index-capabilities-img-3">
+            <img src="{% static 'img/capabilities-4.png' %}" alt="4" class="index-capabilities-img" id="index-capabilities-img-4">
+            <img src="{% static 'img/capabilities-5.png' %}" alt="5" class="index-capabilities-img" id="index-capabilities-img-5">
+        </div>
+    </div>
+</div>
+<div class="container index-mechanism-block" id="mechanism">
+    <h1 class="index-title">Как работает Chad?</h1>
+    <div class="index-mechanism-content">
+        <div class="index-mechanism-subblock">
+            <div class="index-mechanism-imgs">
+                <img src="{% static 'img/top-1.png' %}" alt="1" class="index-mechanism-img">
+                <img src="{% static 'img/top-3.png' %}" alt="2" class="index-mechanism-img">
+                <img src="{% static 'img/top-4.png' %}" alt="3" class="index-mechanism-img">
+                <img src="{% static 'img/top-7.png' %}" alt="7" class="index-mechanism-img">
+            </div>
+            <div class="index-li">
+                <img src="{% static 'img/mechanism-disadvantage.svg' %}" alt="-" class="index-list-img">
+                <span>Платная версия от 20 $ с зарубежной карты</span>
+            </div>
+            <div class="index-li">
+                <img src="{% static 'img/mechanism-disadvantage.svg' %}" alt="-" class="index-list-img">
+                <span>В пиковую загруженность не работает</span>
+            </div>
+            <div class="index-li">
+                <img src="{% static 'img/mechanism-disadvantage.svg' %}" alt="-" class="index-list-img">
+                <span>Блокирует российских пользователей</span>
+            </div>
+            <div class="index-li">
+                <img src="{% static 'img/mechanism-disadvantage.svg' %}" alt="-" class="index-list-img">
+                <span>Интерфейс на английском</span>
+            </div>
+        </div>
+        <div class="index-mechanism-subblock index-mechanism-center">
+            <div class="index-mechanism-line-block">
+                <div class="index-mechanism-line"></div>
+                <img src="{% static 'img/mechanism-arrow.png' %}" alt=">>" class="index-mechanism-arrow-img">
+                <div class="index-mechanism-line"></div>
+            </div>
+            <p class="index-mechanism-text">Мы подключаемся к  платной версии Chat GPT от OpenAI и другим популярным нейросетям, адаптируем  их для России и делаем открытыми.</p>
+        </div>
+        <div class="index-mechanism-subblock">
+            <div class="index-mechanism-imgs">
+                <img src="{% static 'img/mechanism-logo.png' %}" alt="1" class="index-mechanism-img">
+                <span class="index-mechanism-img-title">Chad</span>
+            </div>
+            <div class="index-li">
+                <img src="{% static 'img/mechanism-advantage.svg' %}" alt="+" class="index-list-img">
+                <span>Поддерживает русский язык и интерфейс</span>
+            </div>
+            <div class="index-li">
+                <img src="{% static 'img/mechanism-advantage.svg' %}" alt="+" class="index-list-img">
+                <span>Быстрые ответы без очереди и остановок на час</span>
+            </div>
+            <div class="index-li">
+                <img src="{% static 'img/mechanism-advantage.svg' %}" alt="+" class="index-list-img">
+                <span>Доступ без VPN</span>
+            </div>
+            <div class="index-li">
+                <img src="{% static 'img/mechanism-advantage.svg' %}" alt="+" class="index-list-img">
+                <span>Не нужен номер телефона и иностранная карта</span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container index-details-block">
+    <div class="index-details-subblock" id="index-details-1">
+        <img src="{% static 'img/details-1.svg' %}" alt="1" class="index-details-img">
+        <h3 class="index-details-title">Создавайте контент</h3>
+        <div class="index-details-text">Создавайте уникальные изображения и текст для любых социальных сетей</div>
+    </div>
+    <div class="index-details-subblock" id="index-details-2">
+        <img src="{% static 'img/details-2.svg' %}" alt="2" class="index-details-img">
+        <h3 class="index-details-title">Экономьте время</h3>
+        <div class="index-details-text">Экономьте ваше время для решения рутинных задач с помощью готовых шаблонов</div>
+    </div>
+    <div class="index-details-subblock" id="index-details-3">
+        <img src="{% static 'img/details-3.svg' %}" alt="3" class="index-details-img">
+        <h3 class="index-details-title">Используйте в учебе</h3>
+        <div class="index-details-text">Ищите любую информацию, решайте тесты, создавайте рефераты в один клик</div>
+    </div>
+    <div class="index-details-subblock" id="index-details-4">
+        <img src="{% static 'img/details-4.svg' %}" alt="4" class="index-details-img">
+        <h3 class="index-details-title">Создавайте код</h3>
+        <div class="index-details-text">Редактируйте и создавайте любой код, учитесь новому и исправляйте ошибки</div>
+    </div>
+    <div class="index-details-subblock" id="index-details-5">
+        <img src="{% static 'img/details-5.svg' %}" alt="5" class="index-details-img">
+        <h3 class="index-details-title">Улучшайте текст</h3>
+        <div class="index-details-text">Редактируйте любой текст, увеличивайте оригинальность, создавайте лучший текст под любые задачи</div>
+    </div>
+</div>
+<div class="container index-reviews-block" id="reviews">
+    <h1 class="index-title">Сообщество и отзывы</h1>
+    <h3 class="index-description">Поддержка, обновления и отзывы о сервисе в Telegram чате</h3>
+    <div class="index-reviews-content">
+        {% for review in reviews %}
+            <div class="index-review-block">
+                <div class="index-review-photo-block">
+                    <img src="{{ review.user_photo.url }}" class="index-review-photo">
+                </div>
+                <span class="index-review-name">{{ review.user_name|title }}</span>
+                <span class="index-review-tag">{{ review.get_user_tag }}</span>
+                <p class="index-review-text">{{ review.text }}</p>
+            </div>
+        {% endfor %}
+    </div>
+    <a href="#" class="button index-big-button">Посмотреть отзывы</a>
+</div>
+<div class="container index-tariffs-block" id="tariffs">
+    <h1 class="index-title">Тарифы</h1>
+    <h3 class="index-description">Дарим 5 запросов для тестов и 10 000 слов в боте</h3>
+    <div class="index-tariffs-content">
+        {% for tariff in tariffs %}
+            <div class="index-tariff-block{% if tariff.most_chosen %} most-chosen{% endif %}">
+                {% if tariff.most_chosen %}
+                    <img src="{% static 'img/tariffs-most-chosen.png' %}" class="index-tariff-most-chosen-img">
+                {% endif %}
+                <h3 class="index-tariff-name">{{ tariff.name|title }}</h3>
+                <div class="index-tariff-line"></div>
+                <div class="index-tariffs">
+                    {% for detail in tariff.get_characteristics %}
+                    <div class="index-li">
+                        <img {% if tariff.most_chosen %}src="{% static 'img/tariffs-selected.svg' %}"{% else %}src="{% static 'img/tariffs-not-selected.svg' %}"{% endif %} alt="1" class="index-list-img">
+                        <span>{{ detail }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <span class="index-tariff-price">{{ tariff.price }} руб/мес</span>
+                <div class="button index-big-button">Попробовать бесплатно</div>
+            </div>
+        {% endfor %}
+    </div>
+    <p class="index-tariffs-after">Для доступа без лимитов или личного кабинета для команды напишите <a href="#" class="index-tariffs-after-link">менеджеру в telegram</a></p>
+</div>
+<div class="container index-faq-block" id="faq">
+    <h1 class="index-title">Часто задаваемые вопросы</h1>
+    <div class="index-faq-content">
+        {% for faq in faqs %}
+        <div class="index-question-block" id="faq-{{ faq.pk }}">
+            <div class="index-question-top" id="question-{{ faq.pk }}">
+                <span class="index-question">{{ faq.question }}</span>
+                <div class="index-question-cross-block" id="cross-{{ faq.pk }}">
+                    <img src="{% static 'img/faq-cross.svg' %}" alt="x" class="index-question-cross">
+                </div>
+            </div>
+            <div class="index-answer" id="answer-{{ faq.pk }}">{{ faq.answer }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    <a href="{% url 'main:faq' %}" class="index-faq-after">Больше ответов на вопросы</a>
+</div>
+{% endblock %}
+{% block footer_menu %}
+    <a href="#capabilities" class="header-menu-link">Что может</a>
+    <a href="#mechanism" class="header-menu-link">Как работает</a>
+    <a href="#reviews" class="header-menu-link">Отзывы</a>
+    <a href="#tariffs" class="header-menu-link">Тарифы</a>
+    <a href="{% url 'main:business' %}" class="header-menu-link">Для бизнеса</a>
+    <a href="#faq" class="header-menu-link">Вопросы</a>
+    <a href="{% url 'main:blog' %}" class="header-menu-link">Блог</a>
+{% endblock %}

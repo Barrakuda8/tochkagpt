@@ -1,0 +1,28 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block js %}
+<script src="{% static 'js/faq.js' %}"></script>
+{% endblock %}
+{% block content %}
+<div class="faq-content container">
+    <div class="faq-categories">
+        <div class="faq-category selected" id="all">Все</div>
+        {% for cat in categories %}
+            <div class="faq-category" id="category-{{ cat.pk }}">{{ cat.name }}</div>
+        {% endfor %}
+    </div>
+    <div class="faq-questions">
+        {% for faq in faqs %}
+        <div class="index-question-block{{ faq.get_category_classes }}" id="faq-{{ faq.pk }}">
+            <div class="index-question-top" id="question-{{ faq.pk }}">
+                <span class="index-question">{{ faq.question }}</span>
+                <div class="index-question-cross-block" id="cross-{{ faq.pk }}">
+                    <img src="{% static 'img/faq-cross.svg' %}" alt="x" class="index-question-cross">
+                </div>
+            </div>
+            <div class="index-answer" id="answer-{{ faq.pk }}">{{ faq.answer }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
