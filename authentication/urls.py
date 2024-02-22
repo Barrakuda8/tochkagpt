@@ -8,7 +8,7 @@ urlpatterns = [
     path('logout/', auth.logout, name='logout'),
     path('registration/', auth.registration, name='registration'),
     path('change_password/', auth.change_password, name='change_password'),
+    path('delete_account/', auth.delete_account, name='delete_account'),
     path('verify/<str:email>/<str:key>/', auth.verify, name='verify'),
-    path('send_verify_email_page/', auth.send_verify_email_page, name='send_verify_email_page'),
     path('renew_verification_key/', auth.renew_verification_key, name='renew_verification_key'),
 ]

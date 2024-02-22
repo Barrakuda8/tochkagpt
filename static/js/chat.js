@@ -92,6 +92,10 @@ window.addEventListener('load', () => {
         placeholderFocus(e);
     })
 
+    $('.chat-auth-input').on('focus', (e) => {
+        placeholderFocus(e);
+    })
+
     $('.chat-auth-input-block').on('focusout', (e) => {
         placeholderFocusOut(e);
     })

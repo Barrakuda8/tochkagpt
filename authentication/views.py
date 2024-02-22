@@ -10,6 +10,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 import config
+from chat.models import NewChatSample
 from tochkagpt import settings
 from .forms import UserLoginForm, UserRegisterForm, UserPasswordChangeForm
 from tochkagpt.settings import BASE_URL
@@ -33,7 +34,9 @@ def login(request):
         'title': 'Чат',
         'login_form': login_form,
         'register_form': UserRegisterForm(),
-        'action': 'login'
+        'action': 'login',
+        'new_chat_samples_1': NewChatSample.objects.filter(category__isnull=True, section='1').order_by('pk'),
+        'new_chat_samples_2': NewChatSample.objects.filter(category__isnull=True, section='2').order_by('pk'),
     }
 
     return render(request, 'chat/chat.html', context)
@@ -62,7 +65,9 @@ def registration(request):
         'title': 'Чат',
         'register_form': registration_form,
         'login_form': UserLoginForm(),
-        'action': 'register'
+        'action': 'register',
+        'new_chat_samples_1': NewChatSample.objects.filter(category__isnull=True, section='1').order_by('pk'),
+        'new_chat_samples_2': NewChatSample.objects.filter(category__isnull=True, section='2').order_by('pk'),
     }
     return render(request, 'chat/chat.html', context)
 
@@ -75,7 +80,7 @@ def verify(request, email, key):
             user.verification_key = None
             user.verification_key_expires = None
             user.save()
-            auth.login(request, user)
+            auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return render(request, 'authentication/notification.html',
                           context={'notification': 'Почта успешно подтверждена!'})
     return render(request, 'authentication/notification.html',
@@ -106,19 +111,12 @@ def send_verify_email(user):
 
 
 @login_required
-def send_verify_email_page(request):
-    send_verify_email(request.user)
-    return render(request, 'authentication/notification.html',
-                  context={'notification': 'Письмо со ссылкой для подтверждения адреса электронной почты '
-                                           'было успешно отправлено!'})
-
-
-@login_required
 def renew_verification_key(request):
     user = request.user
-    user.verification_key = hashlib.sha1(user.email.encode('utf8')).hexdigest()
-    user.verification_key_expires = datetime.now(pytz.timezone(settings.TIME_ZONE))
-    user.save()
+    if user.is_verification_key_expired:
+        user.verification_key = hashlib.sha1(user.email.encode('utf8')).hexdigest()
+        user.verification_key_expires = datetime.now(pytz.timezone(settings.TIME_ZONE))
+        user.save()
     send_verify_email(request.user)
     return render(request, 'authentication/notification.html',
                   context={'notification': 'Письмо со ссылкой для подтверждения адреса электронной почты '
@@ -129,11 +127,10 @@ def renew_verification_key(request):
 def change_password(request):
     if request.method == 'POST':
         form = UserPasswordChangeForm(request.user, request.POST)
-        print(form.is_valid())
         if form.is_valid():
             user = form.save()
             auth.update_session_auth_hash(request, user)
-            return HttpResponseRedirect(reverse('main:index'))
+            return HttpResponseRedirect(reverse('chat:index'))
     else:
         form = UserPasswordChangeForm(request.user)
 
@@ -143,3 +140,11 @@ def change_password(request):
     }
 
     return render(request, 'authentication/change_password.html', context=context)
+
+
+@login_required
+def delete_account(request):
+    user = User.objects.get(pk=request.user.pk)
+    user.delete()
+
+    return HttpResponseRedirect(reverse('chat:index'))

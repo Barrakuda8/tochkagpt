@@ -165,8 +165,8 @@ SUMMERNOTE_CONFIG = {
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'social_core.backends.google.GoogleOAuth2',
-    'social_core.backends.vk.VKOAuth2'
-    'social_core.backends.yandex.YandexOAuth2'
+    'social_core.backends.vk.VKOAuth2',
+    'social_core.backends.yandex.YandexOAuth2',
 )
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
@@ -182,9 +182,11 @@ LOGOUT_REDIRECT_URL = '/'
 BASE_URL = config.BASE_URL
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = config.EMAIL_HOST
 EMAIL_HOST_USER = config.EMAIL_USER
+DEFAULT_FROM_EMAIL = config.EMAIL_USER
+SERVER_EMAIL = config.EMAIL_USER
 EMAIL_HOST_PASSWORD = config.EMAIL_PASSWORD
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+EMAIL_PORT = 25
+EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False

@@ -466,6 +466,7 @@
                             {% endfor %}
                             <input type="submit" class="chat-button chat-auth-submit" value="Войти">
                             <span class="chat-auth-rules">Ещё не зарегистрированы? <span class="chat-auth-register chat-clickable clickable-register">Зарегистрироваться</span></span>
+                            <a href="{% url 'password_reset' %}" class="chat-auth-register">Забыли пароль?</a>
                         </form>
                     </div>
                     <div class="chat-background-content" id="bg-register"{% if action == 'register' %} style="display: flex;"{% endif %}>
@@ -540,23 +541,39 @@
                                 <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
                             </div>
                         </div>
-                        <div class="chat-li-block chat-clickable clickable-privacy">
-                            <img src="{% static 'img/chat-settings-privacy.svg' %}" alt="privacy" class="chat-bg-img">
-                            <span>Приватность и безопасность</span>
+                        {% if not user.foreign_registration %}
+                            {% if not user.email_verified %}
+                            <a href="{% url 'authentication:renew_verification_key' %}" class="chat-li-block">
+                                <img src="{% static 'img/chat-settings-verify.svg' %}" alt="verify" class="chat-bg-img">
+                                <span>Потвердить почту</span>
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'authentication:change_password' %}" class="chat-li-block">
+                                <img src="{% static 'img/chat-settings-privacy.svg' %}" alt="password" class="chat-bg-img">
+                                <span>Изменить пароль</span>
+                            </a>
+                        {% endif %}
+                        <div class="chat-li-block chat-clickable clickable-delete">
+                            <img src="{% static 'img/chat-settings-delete.svg' %}" alt="delete" class="chat-bg-img">
+                            <span>Удалить аккаунт</span>
                         </div>
                     </div>
-                    <div class="chat-background-content" id="bg-privacy">
+                    <div class="chat-background-content" id="bg-delete">
                         <div class="chat-bg-top">
                             <div class="chat-bg-back chat-clickable clickable-settings">
                                 <img src="{% static 'img/chat-back.svg' %}" alt="<" class="chat-bg-img">
                             </div>
-                            <span>Приватность и безопасность</span>
+                            <span>Удаление аккаунта</span>
                             <div class="chat-bg-close">
                                 <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
                             </div>
                         </div>
-                        <div class="chat-li-block">
-                            <span>Удалить аккаунт</span>
+                        <div class="chat-delete-account">
+                            Вы точно хотите удалить свой аккаунт? Это действие удалит все данные, связанные с вашим аккаунтом, в том числе все чаты, сообщения и подписку, если она есть.
+                        </div>
+                        <div class="chat-delete-account-buttons">
+                            <a href="{% url 'authentication:delete_account' %}" class="chat-button">Да</a>
+                            <div class="chat-button chat-clickable clickable-settings">Нет</div>
                         </div>
                     </div>
                     <div class="chat-background-content" id="bg-news">

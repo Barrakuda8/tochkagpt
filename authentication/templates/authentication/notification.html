@@ -1,5 +1,11 @@
-{% extends 'main/base.html' %}
+{% extends 'main/light_base.html' %}
 {% load static %}
 {% block content %}
-<h1 class="faq-form-notification">{{ notification }}</h1>
+<div class="rules-content container">
+    <div class="article-back">
+        <img src="{% static 'img/article-back.svg' %}" alt="<" class="article-back-arrow">
+        <a href="{% url 'chat:index' %}" class="article-back-link">Назад</a>
+    </div>
+    <div class="notification-block">{{ notification }}</div>
+</div>
 {% endblock %}

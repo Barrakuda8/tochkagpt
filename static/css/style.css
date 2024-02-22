@@ -42,6 +42,21 @@ a {
   justify-content: space-between;
 }
 
+.notification-block {
+  margin: 0 auto;
+  text-align: center;
+  font-size: 25px;
+}
+
+.errorlist {
+  font-size: 12px;
+  list-style: none;
+  margin-bottom: 7px;
+  max-width: 336px;
+  text-align: center;
+  display: block;
+}
+
 .header-wrapper {
   width: 100%;
   background-color: rgba(31, 30, 37, 0.4);
@@ -2056,6 +2071,8 @@ new-block .chat-bg-new-sample-block > span {
   color: rgb(163, 163, 163);
   text-decoration: underline;
   cursor: pointer;
+  font-size: 12px;
+  margin-top: 10px;
 }
 
 .chat-bg-top {
@@ -2952,6 +2969,64 @@ new-block .chat-bg-new-sample-block > span {
   background-color: rgba(0, 0, 0, 0.6);
 }
 
+.chat-delete-account {
+  margin: 10px 25px;
+  font-size: 16px;
+  width: 336px;
+  max-width: calc(100vw - 90px);
+}
+
+.chat-delete-account-buttons {
+  width: 336px;
+  max-width: calc(100vw - 90px);
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 25px 0;
+}
+
+.chat-delete-account-buttons > .chat-button {
+  padding: 5px 10px;
+  width: 60px;
+}
+
+.reset-password-form {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.reset-password-form > input:not(.reset-button) {
+  margin: 5px 0 15px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #171719;
+}
+
+.reset-password-form > input:not(.reset-button):focus {
+  outline: none;
+  border-width: 2px;
+}
+
+.reset-button {
+  padding: 5px;
+  margin: 0 auto;
+  border-radius: 5px;
+  border: 1px solid #171719;
+  background-color: white;
+  cursor: pointer;
+}
+
+.reset-password-form > .g-recaptcha {
+  margin-bottom: 15px;
+}
+
+.reset-link {
+  color: #171719;
+  text-decoration: underline;
+}
+
 @media (max-width: 1300px) {
   .container {
     width: calc(100vw - 100px);
@@ -3688,7 +3763,7 @@ new-block .chat-bg-new-sample-block > span {
     justify-content: space-between;
     height: 75px;
   }
-  .chat-auth-social, .chat-auth-email, .chat-auth-submit, .chat-auth-input-block {
+  .chat-auth-social, .chat-auth-email, .chat-auth-submit, .chat-auth-input-block, .errorlist {
     max-width: calc(100vw - 60px);
   }
   .chat-background-content#bg-auth {

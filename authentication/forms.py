@@ -2,6 +2,8 @@ import hashlib
 from datetime import datetime
 import pytz
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordChangeForm
+from django import forms
+
 from authentication.models import User
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV2Checkbox
@@ -26,6 +28,7 @@ class UserLoginForm(AuthenticationForm):
 
 class UserRegisterForm(UserCreationForm):
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
+    email = forms.EmailField(required=True, label='Адрес электронной почты', )
 
     class Meta:
         model = User
@@ -61,8 +64,4 @@ class UserPasswordChangeForm(PasswordChangeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'chat-auth-input'
             field.help_text = ''
-        self.fields['old_password'].widget.attrs['placeholder'] = 'Старый пароль'
-        self.fields['new_password1'].widget.attrs['placeholder'] = 'Новый пароль'
-        self.fields['new_password2'].widget.attrs['placeholder'] = 'Подтвердите пароль'
