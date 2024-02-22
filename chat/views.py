@@ -506,11 +506,3 @@ def set_context(request):
     user.save()
     return JsonResponse({'result': 'ok'})
 
-
-def yandex_login(request):
-    return render(request, 'chat/yandex_login.html')
-
-
-def yandex_redirect(request):
-    return render(request, 'chat/yandex_redirect.html')
-
