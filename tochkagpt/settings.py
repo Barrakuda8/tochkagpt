@@ -118,7 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru-ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -180,6 +180,9 @@ SOCIAL_AUTH_YANDEX_OAUTH2_SECRET = config.SOCIAL_AUTH_YANDEX_OAUTH2_SECRET
 LOGOUT_REDIRECT_URL = '/'
 
 BASE_URL = config.BASE_URL
+
+if config.PRODUCTION:
+    STATIC_ROOT = '/var/www/static'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config.EMAIL_HOST

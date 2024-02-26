@@ -2,6 +2,8 @@ import re
 from datetime import datetime
 import pytz
 from django.db import models
+from django.dispatch import receiver
+
 from authentication.models import User
 from tochkagpt import settings
 
@@ -49,7 +51,7 @@ class Subscription(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions', verbose_name='Пользователь')
     tariff = models.ForeignKey(Tariff, on_delete=models.CASCADE, verbose_name='Тариф')
-    start_date = models.DateTimeField(auto_now=True, verbose_name='Дата начала')
+    start_date = models.DateTimeField(verbose_name='Дата начала')
     end_date = models.DateTimeField(verbose_name='Дата окончания')
 
     class Meta:
@@ -276,3 +278,31 @@ class NewChatInstruction(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class PaymentOperation(models.Model):
+
+    STATUSES = (
+        ('I', 'Initiated'),
+        ('S', 'Successful'),
+        ('F', 'Failed')
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='operations', verbose_name='Пользователь')
+    status = models.CharField(choices=STATUSES, default=STATUSES[0][0], verbose_name='Статус')
+    cost = models.FloatField(verbose_name='Сумма заказа')
+    details = models.JSONField(default=dict, verbose_name='Детали')
+
+    class Meta:
+        verbose_name = 'Операция'
+        verbose_name_plural = 'Операции'
+
+    def __str__(self):
+        return f'{self.pk}-{self.user.username}-{self.details["subject"]}'
+
+
+@receiver(models.signals.pre_save, sender=Subscription)
+def set_start_date(sender, instance, raw, using, update_fields, *args, **kwargs):
+    if not instance.pk:
+        instance.start_date = datetime.now(pytz.timezone(settings.TIME_ZONE))
+

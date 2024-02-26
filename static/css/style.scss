@@ -1246,7 +1246,6 @@ a {
 .chat-chat-field-content {
     display: flex;
     flex-direction: column-reverse;
-    padding-bottom: 30px;
     width: 100%;
 }
 
@@ -1979,6 +1978,10 @@ new-block
     cursor: pointer;
 }
 
+.chat-chat-textarea-send.inactive {
+    display: none !important;
+}
+
 .chat-chat-textarea-send img {
     height: 22px;
     pointer-events: none;
@@ -1989,7 +1992,7 @@ new-block
     background-color: rgba(188, 188, 188, 0.3);
 }
 
-.chat-background {
+.chat-background, .chat-payment-bg {
     position: fixed;
     z-index: 103;
     top: 0;
@@ -2010,9 +2013,20 @@ new-block
     padding-bottom: 10px;
 }
 
-.chat-background-loader {
-    display: none;
+.chat-loader-img {
+    visibility: hidden;
     width: 50px;
+    margin: 10px auto;
+    filter: invert(1);
+}
+
+.chat-loader-msg {
+    visibility: hidden;
+    color: rgb(163 163 163);
+    font-size: 12px;
+    margin: 10px auto 0;
+    box-sizing: border-box;
+    text-align: center;
 }
 
 .chat-background-content#bg-auth {
@@ -2088,7 +2102,7 @@ new-block
     color: rgb(163 163 163);
     font-size: 12px;
     padding: 0 25px;
-    max-width: 420px;
+    max-width: 520px;
     box-sizing: border-box;
     text-align: center;
 }
@@ -2119,7 +2133,7 @@ new-block
 }
 
 .chat-bg-close, .chat-bg-back, .chat-sample-like-block, .chat-sample-delete-block, .chat-sample-unlike-block, .chat-samples-checkbox-block,
-.chat-chat-message-copy, .chat-chat-message-delete {
+.chat-chat-message-copy, .chat-chat-message-delete, .chat-payment-close {
     cursor: pointer;
     width: 35px;
     height: 35px;
@@ -2129,7 +2143,8 @@ new-block
     justify-content: center;
 }
 
-.chat-bg-close:hover, .chat-bg-back:hover, .chat-li-block:hover, .chat-news-li-block:hover, .chat-samples-checkbox-block:hover, .chat-bg-notification-button:hover {
+.chat-bg-close:hover, .chat-bg-back:hover, .chat-li-block:hover, .chat-news-li-block:hover, .chat-samples-checkbox-block:hover, .chat-bg-notification-button:hover,
+.chat-payment-close:hover, .chat-tariffs-button:hover {
     background-color: rgb(243 244 246);
 }
 
@@ -2279,6 +2294,105 @@ new-block
     align-items: center;
 }
 
+.chat-tariffs-bottom {
+    width: 100%;
+    padding: 10px 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-tariffs-button {
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    font-size: 14px;
+    height: 30px;
+    box-sizing: border-box;
+    margin: 0 10px;
+    padding: 5px;
+    cursor: pointer;
+    color: #171719;
+}
+
+.chat-tariffs-button > img {
+    width: 18px;
+    margin-right: 10px;
+}
+
+.chat-payment-bg {
+    z-index: 104;
+    cursor: pointer;
+}
+
+.chat-payment-bg input {
+    width: 80px;
+    padding: 2px 5px;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    outline: none !important;
+}
+
+.chat-payment-bg input:focus, .chat-payment-promocode:focus {
+    border-color: black;
+}
+
+.chat-payment-bg .chat-button, .payment-business {
+    width: 100px;
+    margin: 10px auto;
+    padding: 5px;
+}
+
+.chat-payment-bg p {
+    margin: 10px 25px;
+    font-size: 16px;
+    width: 336px;
+    max-width: calc(100vw - 90px);
+}
+
+.chat-payment-promocode {
+    width: 200px !important;
+    padding: 5px 10px;
+    font-size: 18px;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    outline: none !important;
+    margin: 20px auto 10px;
+}
+
+.payment-promocode img, .payment-promocode span {
+    pointer-events: none;
+}
+
+#payment-promocode {
+    width: 300px;
+    max-width: calc(100vw - 40px);
+}
+
+#payment-promocode > .chat-button {
+    width: 200px;
+    box-sizing: border-box;
+}
+
+.chat-bg-business-balance-block {
+    width: 300px;
+    max-width: calc(100% - 40px);
+    padding: 10px 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chat-payment-wrong-promocode {
+    color: rgb(153 27 27);
+    line-height: 26px;
+    letter-spacing: 0.1em;
+    margin: 0 auto;
+    display: none;
+}
+
 .chat-clickable span, .chat-clickable img {
     pointer-events: none;
 }
@@ -2361,6 +2475,10 @@ new-block
     height: 400px;
     scrollbar-color: #e6e6e6 white;
     scrollbar-width: thin;
+}
+
+.chat-bg-requests .chat-auth-rules {
+    max-width: 420px;
 }
 
 .chat-bg-request-block {
@@ -3492,7 +3610,7 @@ new-block
 
     .chat-tariffs-content {
         flex-direction: column;
-        max-height: calc(100vh - 150px);
+        max-height: calc(100vh - 220px);
         overflow: auto;
         scrollbar-color: #e6e6e6 white;
         scrollbar-width: thin;
@@ -3946,6 +4064,26 @@ new-block
     .chat-auth-submit {
         margin: 10px 0 !important;
     }
+
+    .chat-bg-request-block, .chat-bg-requests .chat-auth-rules {
+        width: calc(100vw - 40px)
+    }
+
+    .chat-bg-request-bottom > span {
+        font-size: 12px;
+    }
+
+    .chat-payment-bg .chat-button {
+        margin: 10px auto !important;
+    }
+
+    .chat-bg-top {
+        max-width: calc(100vw - 40px);
+    }
+
+    .chat-payment-bg p {
+        font-size: 14px;
+    }
 }
 
 @media (max-width: 400px) {
@@ -4055,6 +4193,20 @@ new-block
     
     .chat-background-content#bg-auth {
         padding: 0 10px 10px;
+    }
+
+    .chat-tariffs-bottom {
+        flex-direction: column;
+    }
+
+    .chat-tariffs-button {
+        width: 170px;
+        margin-top: 5px;
+    }
+
+    .chat-tariffs-button > span {
+        text-align: center;
+        flex-grow: 1;
     }
 }
 

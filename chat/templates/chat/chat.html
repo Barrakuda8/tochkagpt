@@ -83,6 +83,8 @@
             </div>
             <div class="chat-chat-block">
                 <div class="chat-chat-field-area">
+                    <img src="{% static 'img/loader.svg' %}" alt="loading" class="chat-loader chat-loader-img">
+                    <span class="chat-loader-msg chat-loader">При работе с изображениями ответ может занять до нескольких минут</span>
                     <div class="chat-chat-field-content">
                         {% if current_chat %}
                             {% for message in current_chat.get_messages %}
@@ -154,14 +156,14 @@
                                 </div>
                                 <div class="chat-new-top-samples-block">
                                     {% for sample in new_chat_samples_2 %}
-                                        <div class="chat-new-top-sample {% if not user.get_subscription %}chat-clickable clickable-new-2-{{ sample.pk }}{% else %}chat-new-sample-click{% endif %}">
+                                        <div class="chat-new-top-sample {% if not user.check_images %}chat-clickable clickable-new-2-{{ sample.pk }}{% else %}chat-new-sample-click{% endif %}">
                                             <img src="{{ sample.icon.url }}" class="chat-new-top-sample-icon">
                                             <span>{{ sample.text }}</span>
                                         </div>
                                     {% endfor %}
                                 </div>
                                 <div class="chat-new-top-samples-block">
-                                    <div class="chat-new-top-sample {% if not user.get_subscription or not user.get_subscription.tariff.samples_included %}chat-clickable clickable-tariffs{% else %}chat-new-top-open-samples{% endif %}">
+                                    <div class="chat-new-top-sample {% if not user.check_samples %}chat-clickable clickable-tariffs{% else %}chat-new-top-open-samples{% endif %}">
                                         <img src="{% static 'img/chat-sample-icon.svg' %}" class="chat-new-top-sample-icon">
                                         <div class="chat-new-top-sample-right">
                                             <span>Шаблоны</span>
@@ -179,7 +181,7 @@
                             </div>
                             <div class="chat-new-top-links">
                                 <span class="chat-new-top-link chat-clickable clickable-new-1 selected">Больше примеров</span>
-                                <span class="chat-new-top-link chat-clickable {% if user.get_subscription %}clickable-new-2{% else %}clickable-tariffs{% endif %}">Подробнее</span>
+                                <span class="chat-new-top-link chat-clickable {% if user.check_images %}clickable-new-2{% else %}clickable-tariffs{% endif %}">Подробнее</span>
                                 <span class="chat-new-top-link chat-clickable clickable-tutorial">Туториал</span>
                             </div>
                         </div>
@@ -237,7 +239,7 @@
                                     <span>Файл</span>
                                     <input type="file" accept=".png,.jpg,.jpeg,.webp,.gif" class="chat-chat-textarea-file">
                                 </div>
-                                <div class="chat-chat-textarea-subblock{% if not user.get_subscription or not user.get_subscription.tariff.samples_included %} blocked{% endif %}" id="open-samples">
+                                <div class="chat-chat-textarea-subblock{% if not user.check_samples %} blocked{% endif %}" id="open-samples">
                                     <img src="{% static 'img/chat-sample-icon.svg' %}" alt="samples">
                                     <span>Шаблоны</span>
                                 </div>
@@ -504,6 +506,12 @@
                             <img src="{% static 'img/chat-tariffs-icon.svg' %}" alt="tarif" class="chat-bg-img">
                             <span>Тариф и подписка</span>
                         </div>
+                        {% if user.business_subscription %}
+                            <div class="chat-li-block chat-clickable clickable-business">
+                                <img src="{% static 'img/chat-business.svg' %}" alt="tarif" class="chat-bg-img">
+                                <span>Тариф "Бизнес"</span>
+                            </div>
+                        {% endif %}
                         <div class="chat-li-block chat-clickable clickable-settings">
                             <img src="{% static 'img/chat-lk-settings.svg' %}" alt="settings" class="chat-bg-img">
                             <span>Настройки аккаунта</span>
@@ -527,7 +535,11 @@
                             <span>Текущий тариф:</span><span>{% if user.get_subscription %}{{ user.get_subscription.tariff }}{% else %}Пробный{% endif %}</span>
                         </div>
                         <div class="chat-bg-buttons">
-                            <div class="chat-button chat-clickable clickable-tariffs" id="get-subscription">Оформить подписку</div>
+                            {% if not user.get_subscription %}
+                                <div class="chat-button chat-clickable clickable-tariffs" id="get-subscription">Оформить подписку</div>
+                            {% else %}
+                                <div class="chat-button chat-payment-clickable payment-tariffs" id="current-tariff-{{ user.get_subscription.tariff.pk }}">Продлить подписку</div>
+                            {% endif %}
                             <div class="chat-button chat-clickable clickable-requests">Докупить запросы</div>
                         </div>          
                     </div>
@@ -576,6 +588,21 @@
                             <div class="chat-button chat-clickable clickable-settings">Нет</div>
                         </div>
                     </div>
+                    <div class="chat-background-content" id="bg-business">
+                        <div class="chat-bg-top">
+                            <div class="chat-bg-back chat-clickable clickable-lk">
+                                <img src="{% static 'img/chat-back.svg' %}" alt="<" class="chat-bg-img">
+                            </div>
+                            <span>Тариф "Бизнес"</span>
+                            <div class="chat-bg-close">
+                                <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                            </div>
+                        </div>
+                        <div class="chat-bg-business-balance-block">
+                            <span>Текущий баланс</span><span class="chat-bg-business-current-balance">{{ user.business_subscription.balance }} &#8381;</span>
+                        </div>
+                        <span class="chat-button chat-payment-clickable payment-business">Пополнить</span>
+                    </div>
                     <div class="chat-background-content" id="bg-news">
                         <div class="chat-bg-top">
                             <span>Новости и поддержка</span>
@@ -605,7 +632,7 @@
                                     {% if tariff.most_chosen %}
                                         <img src="{% static 'img/tariffs-most-chosen.png' %}" class="chat-tariff-most-chosen-img">
                                     {% endif %}
-                                    <h4 class="chat-tariff-name">{{ tariff.name|title }}</h4>
+                                    <h4 class="chat-tariff-name" id="tariff-name-{{ tariff.pk }}">{{ tariff.name|title }}</h4>
                                     <div class="chat-tariffs">
                                         {% for detail in tariff.get_characteristics %}
                                             <div class="chat-tariff-li">
@@ -615,11 +642,17 @@
                                         {% endfor %}
                                     </div>
                                     <span class="chat-tariff-price">{{ tariff.price }} руб/мес</span>
-                                    <div class="button chat-tariff-button">Выбрать</div>
+                                    <div class="button chat-tariff-button payment-tariffs chat-payment-clickable" id="tariff-{{ tariff.pk }}">Выбрать</div>
                                 </div>
                             {% endfor %}
                         </div>
                         <span class="chat-auth-rules">Нажимая на кнопку "Выбрать", вы соглашаетесь с <a href="{% url 'main:rules' %}">публичной офертой</a></span>
+                        {% if not user.business_subscription %}
+                            <div class="chat-tariffs-bottom">
+                                <a class="chat-tariffs-button"><img src="{% static 'img/chat-business.svg' %}"><span>Тариф "Бизнес"</span></a>
+                                <a class="chat-tariffs-button chat-payment-clickable payment-promocode"><img src="{% static 'img/chat-promocode.svg' %}"><span>Ввести промокод</span></a>
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="chat-background-content" id="bg-file">
                         <div class="chat-bg-top">
@@ -709,7 +742,7 @@
                             <span>Итого:</span>
                             <span class="chat-bg-request-total">0 &#8381;</span>
                         </div>
-                        <div class="chat-button chat-button-request">Оплатить</div>
+                        <div class="chat-button chat-button-request payment-requests chat-payment-clickable">Оплатить</div>
                         <span class="chat-auth-rules">Нажимая на кнопку "Оплатить", вы соглашаетесь с <a href="{% url 'main:rules' %}">публичной офертой</a></span>
                     </div>
                     <div class="chat-background-content" id="bg-notification">
@@ -827,8 +860,54 @@
                             </div>
                         </div>
                     {% endfor %}
-                    <img src="{% static 'img/loader.svg' %}" alt="loading" class="chat-background-loader">
                 {% endif %}
+            </div>
+            <div class="chat-payment-bg">
+                <div class="chat-background-content chat-payment-content" id="payment-tariffs">
+                    <div class="chat-bg-top">
+                        <span>Оплата тарифа</span>
+                        <div class="chat-payment-close">
+                            <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                        </div>
+                    </div>
+                    <p>Вы собираетесь оплатить тариф "<span class="chat-payment-tariffs-name"></span>" на <input type="number" min="1" value="1" class="chat-payment-tariffs-months"> месяца.</p>
+                    <p>Если у вас сейчас стоит другой тариф, он будет обнулён и заменён этим. Если у вас сейчас стоит этот тариф, он будет продлён на указанное количество месяцев.</p>
+                    <p>Нажав кнопку "Оплатить", вы будете перенаправлены на страницу оплаты.</p>
+                    <span class="chat-button chat-payment-tariffs-submit">Оплатить</span>
+                </div>
+                <div class="chat-background-content chat-payment-content" id="payment-requests">
+                    <div class="chat-bg-top">
+                        <span>Покупка запросов</span>
+                        <div class="chat-payment-close">
+                            <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                        </div>
+                    </div>
+                    <p>Вы собираетесь купить дополнительных запросов на сумму <span class="chat-payment-requests-balance"></span>.</p>
+                    <p>Нажав кнопку "Купить", вы будете перенаправлены на страницу оплаты.</p>
+                    <span class="chat-button chat-payment-requests-submit">Купить</span>
+                </div>
+                <div class="chat-background-content chat-payment-content" id="payment-business">
+                    <div class="chat-bg-top">
+                        <span>Пополнение баланса</span>
+                        <div class="chat-payment-close">
+                            <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                        </div>
+                    </div>
+                    <p>Вы собираетесь пополнить баланс вашего тарифа "Бизнес" на <input type="number" min="1" value="1" class="chat-payment-business-balance"> &#8381;.</p>
+                    <p>Нажав кнопку "Пополнить", вы будете перенаправлены на страницу оплаты.</p>
+                    <span class="chat-button chat-payment-business-submit">Пополнить</span>
+                </div>
+                <div class="chat-background-content chat-payment-content" id="payment-promocode">
+                    <div class="chat-bg-top">
+                        <span>Промокод</span>
+                        <div class="chat-payment-close">
+                            <img src="{% static 'img/chat-close.svg' %}" alt="X" class="chat-bg-img">
+                        </div>
+                    </div>
+                    <input type="text" class="chat-payment-promocode">
+                    <span class="chat-payment-wrong-promocode">Неверный промокод</span>
+                    <span class="chat-button chat-payment-promocode-submit">Активировать</span>
+                </div>
             </div>
             <div class="chat-samples-help-bottom"></div>
             <div class="chat-samples-help-left"></div>

@@ -5,7 +5,15 @@ import json
 import os
 import re
 import time
+import decimal
+import hashlib
+from datetime import timedelta, datetime
+from urllib import parse
+from urllib.parse import urlparse
 from uuid import uuid4
+
+import pytz
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from openai import OpenAI
 import requests
@@ -17,10 +25,11 @@ from django.shortcuts import render
 from translate import Translator
 import config
 from authentication.forms import UserLoginForm, UserRegisterForm
-from authentication.models import User
+from authentication.models import User, BusinessSubscription
+from tochkagpt import settings
 from tochkagpt.settings import BASE_DIR, STATIC_URL, MEDIA_URL
 from .models import Message, Chat, Tariff, Sample, SampleCategory, UserSamplesLikes, UserSample, Attachment, \
-    NewChatInstruction, NewChatCategory, NewChatSample
+    NewChatInstruction, NewChatCategory, NewChatSample, PaymentOperation, Subscription
 
 
 def index(request):
@@ -60,7 +69,7 @@ def index(request):
 @login_required
 def like_sample(request):
 
-    if request.user.get_subscription is None or not request.user.get_subscription.tariff.samples_included:
+    if request.user.check_samples:
         return JsonResponse({'result': 'failed'})
 
     pk = int(request.POST.get('pk'))
@@ -82,7 +91,7 @@ def like_sample(request):
 @login_required
 def delete_sample(request):
 
-    if request.user.get_subscription is None or not request.user.get_subscription.tariff.samples_included:
+    if request.user.check_samples:
         return JsonResponse({'result': 'failed'})
 
     pk = int(request.POST.get('pk'))
@@ -99,7 +108,7 @@ def delete_sample(request):
 @login_required
 def create_sample(request):
 
-    if request.user.get_subscription is None or not request.user.get_subscription.tariff.samples_included:
+    if request.user.check_samples:
         return JsonResponse({'result': 'failed'})
 
     name = request.POST.get('name')
@@ -143,7 +152,7 @@ def create_sample(request):
 @login_required
 def unlike_sample(request):
 
-    if request.user.get_subscription is None or not request.user.get_subscription.tariff.samples_included:
+    if request.user.check_samples:
         return JsonResponse({'result': 'failed'})
 
     pk = int(request.POST.get('pk'))
@@ -172,7 +181,7 @@ def get_gpt35_response(message, user, chat, from_subscription):
 
     if user.use_context:
         messages_query = Message.objects.filter(Q(chat__pk=chat.pk, is_deleted=False) & ~Q(pk=message.pk))
-        if user.get_subscription is None:
+        if user.get_subscription is None and user.business_subscription is None:
             messages = []
             length = 0
             for m in messages_query.order_by('-pk'):
@@ -318,9 +327,10 @@ def handle_request(request):
         is_new = request.POST.get('is_new')
         sample_pk = request.POST.get('sample')
         subscription = request.user.get_subscription
+        business_subscription = request.user.business_subscription
         if sample_pk:
             sample = Sample.objects.filter(pk=int(sample_pk))
-            if sample.exists() and subscription is not None and subscription.tariff.samples_included:
+            if sample.exists() and request.user.check_samples:
                 sample = sample.first()
                 variables = json.loads(request.POST['variables'])
                 text = sample.text
@@ -335,7 +345,8 @@ def handle_request(request):
         else:
             chat = request.user.get_current_chat
 
-        if subscription is None and request.user.get_day_requests >= config.FREE_REQUESTS_PER_DAY:
+        if subscription is None and business_subscription is None and \
+                request.user.get_day_requests >= config.FREE_REQUESTS_PER_DAY:
             return JsonResponse({'result': 'day limit'})
 
         from_subscription = True
@@ -349,7 +360,12 @@ def handle_request(request):
                 'Midjourney': [get_midjourney_response, 'MJ']
             }
             user_data = data[request.user.selected_img_ai]
-            if subscription is not None and \
+
+            if business_subscription is not None and business_subscription.balance >= config.REQUEST_PRICE[user_data[1]]:
+                business_subscription.balance -= config.REQUEST_PRICE[user_data[1]]
+                business_subscription.save()
+                from_subscription = False
+            elif subscription is not None and \
                     getattr(subscription.tariff, f'requests_{user_data[1]}') > request.user.get_month_requests(user_data[1]):
                 pass
             elif getattr(request.user, f'requests_{user_data[1]}') > 0:
@@ -363,7 +379,11 @@ def handle_request(request):
             ai = user_data[1]
         else:
             if request.FILES:
-                if subscription is not None and subscription.tariff.requests_VS > request.user.get_month_requests('VS'):
+                if business_subscription is not None and business_subscription.balance >= config.REQUEST_PRICE['VS']:
+                    business_subscription.balance -= config.REQUEST_PRICE['VS']
+                    business_subscription.save()
+                    from_subscription = False
+                elif subscription is not None and subscription.tariff.requests_VS > request.user.get_month_requests('VS'):
                     pass
                 elif request.user.requests_VS > 0:
                     request.user.requests_VS -= 1
@@ -386,7 +406,11 @@ def handle_request(request):
                     'GPT-4': [get_gpt4_response, 'GPT4']
                 }
                 selected_ai = data[request.user.selected_ai]
-                if subscription is None or \
+                if business_subscription is not None and business_subscription.balance >= config.REQUEST_PRICE[selected_ai[1]]:
+                    business_subscription.balance -= config.REQUEST_PRICE[selected_ai[1]]
+                    business_subscription.save()
+                    from_subscription = False
+                elif subscription is None or \
                         (subscription is not None and
                          (getattr(subscription.tariff, f'requests_{selected_ai[1]}')
                           + (0 if selected_ai[1] == 'GPT4' else subscription.tariff.requests_GPT4))
@@ -489,7 +513,7 @@ def select_ai(request):
 
 @login_required
 def get_sample(request):
-    if request.user.get_subscription is None or not request.user.get_subscription.tariff.samples_included:
+    if request.check_samples:
         return JsonResponse({'result': 'failed'})
 
     pk = int(request.GET.get('pk'))
@@ -506,3 +530,163 @@ def set_context(request):
     user.save()
     return JsonResponse({'result': 'ok'})
 
+
+@login_required
+def enter_promo_code(request):
+    promo_code = request.POST.get('promo_code')
+    subscription = BusinessSubscription.objects.filter(promo_code=promo_code)
+    if subscription.exists():
+        user = request.user
+        user.business_subscription = subscription.first()
+        user.save()
+        return JsonResponse({'result': 'ok'})
+    return JsonResponse({'result': 'wrong'})
+
+
+def calculate_signature(*args) -> str:
+    return hashlib.md5(':'.join(str(arg) for arg in args).encode()).hexdigest()
+
+
+def parse_response(request: str) -> dict:
+    params = {}
+
+    for item in urlparse(request).query.split('&'):
+        key, value = item.split('=')
+        params[key] = value
+    return params
+
+
+def check_signature_result(
+    order_number: int,  # invoice number
+    received_sum: decimal,  # cost of goods, RU
+    received_signature: hex,  # SignatureValue
+    password: str  # Merchant password
+) -> bool:
+    signature = calculate_signature(received_sum, order_number, password)
+    if signature.lower() == received_signature.lower():
+        return True
+    return False
+
+
+# Формирование URL переадресации пользователя на оплату.
+
+def generate_payment_link(request):
+
+    subject = request.POST.get('subject')
+    if subject in ['tariff', 'business', 'requests']:
+        total_cost = 0
+        details = {'subject': subject}
+        if subject == 'tariff':
+            try:
+                tariff_pk = int(request.POST.get('tariff_pk'))
+                details['tariff_pk'] = tariff_pk
+                tariff = Tariff.objects.get(pk=tariff_pk)
+                count = int(request.POST.get('count'))
+                details['count'] = count
+                total_cost += tariff.price * count
+                description = f'Оплата тарифа "{tariff.name}" на сайте tochkagpt.ru'
+            except (ValueError, ObjectDoesNotExist):
+                return JsonResponse({'result': 'failed'})
+        elif subject == 'business':
+            try:
+                cost = int(request.POST.get('cost'))
+                details['cost'] = cost
+                total_cost += cost
+                description = 'Пополнение баланса по тарифу "Бизнес" на сайте tochkagpt.ru'
+            except ValueError:
+                return JsonResponse({'result': 'failed'})
+        else:
+            result = {}
+            for r in json.loads(request.POST['requests']):
+                ai = r['ai']
+                quantity = r['quantity']
+                if ai in config.REQUEST_PRICE.keys():
+                    cost = round(quantity * config.REQUEST_PRICE[ai], 2)
+                    total_cost += cost
+                    result[ai] = {'quantity': quantity, 'cost': cost}
+            details['requests'] = result
+            description = 'Оплата дополнительных запросов на сайте tochkagpt.ru'
+
+        if total_cost <= 0:
+            return JsonResponse({'result': 'failed'})
+
+        payment_operation = PaymentOperation.objects.create(user=request.user, cost=total_cost, details=details)
+
+        signature = calculate_signature(
+            config.ROBOKASSA_LOGIN,
+            total_cost,
+            payment_operation.pk,
+            config.ROBOKASSA_PASSWORD_1
+        )
+
+        data = {
+            'MerchantLogin': config.ROBOKASSA_LOGIN,
+            'OutSum': total_cost,
+            'InvId': payment_operation.pk,
+            'Description': description,
+            'SignatureValue': signature,
+            'IsTest': 0
+        }
+        return JsonResponse({'result': 'ok', 'link': f'https://auth.robokassa.ru/Merchant/Index.aspx?{parse.urlencode(data)}'})
+    else:
+        return JsonResponse({'result': 'failed'})
+
+
+# Получение уведомления об исполнении операции (ResultURL).
+
+def result_payment(request, merchant_password_2=config.ROBOKASSA_PASSWORD_2):
+    param_request = parse_response(request)
+    cost = param_request['OutSum']
+    number = param_request['InvId']
+    signature = param_request['SignatureValue']
+    operation = PaymentOperation.objects.get(pk=number)
+    if check_signature_result(number, cost, signature, merchant_password_2) and not operation.status == 'S':
+        operation.status = 'S'
+        operation.save()
+        subject = operation.details['subject']
+        user = User.objects.get(pk=operation.user.pk)
+        if subject == 'tariff':
+            subscription = user.get_subscription
+            if subscription is not None and subscription.tariff.pk == operation.details['tariff_pk']:
+                subscription.end_date += timedelta(days=30*operation.details['count'])
+                subscription.save()
+            else:
+                if subscription is not None:
+                    subscription.end_date = datetime.now(pytz.timezone(settings.TIME_ZONE))
+                    subscription.save()
+                Subscription.objects.create(user=user, tariff=Tariff.objects.get(pk=operation.details['tariff_pk']),
+                                            end_date=datetime.now(pytz.timezone(settings.TIME_ZONE)) + timedelta(days=30*operation.details['count']))
+        elif subject == 'business':
+            business_subscription = user.business_subscription
+            business_subscription.balance += operation.details['cost']
+            business_subscription.save()
+        else:
+            for ai, value in operation.details['requests'].items():
+                setattr(user, f'requests_{ai}',
+                        getattr(user, f'requests_{ai}') + value['quantity'])
+            user.save()
+
+        return f'OK{param_request["InvId"]}'
+    operation.status = 'F'
+    operation.save()
+    return "bad sign"
+
+
+# Проверка параметров в скрипте завершения операции (SuccessURL).
+
+def check_success_payment(request, merchant_password_1=config.ROBOKASSA_PASSWORD_1):
+    param_request = parse_response(request)
+    cost = param_request['OutSum']
+    number = param_request['InvId']
+    signature = param_request['SignatureValue']
+
+    if check_signature_result(number, cost, signature, merchant_password_1):
+        return render(request, 'authentication/notification.html',
+                      context={'notification': 'Оплата прошла успешно!'})
+    return render(request, 'authentication/notification.html',
+                  context={'notification': 'Что-то пошло не так :с'})
+
+
+def fail_payment(request):
+    return render(request, 'authentication/notification.html',
+                  context={'notification': 'Оплата была отменена.'})

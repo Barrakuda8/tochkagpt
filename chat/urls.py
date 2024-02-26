@@ -18,4 +18,9 @@ urlpatterns = [
     path('select_ai/', chat.select_ai, name='select_ai'),
     path('get_sample/', chat.get_sample, name='get_sample'),
     path('set_context/', chat.set_context, name='set_context'),
+    path('enter_promo_code/', chat.enter_promo_code, name='enter_promo_code'),
+    path('result_payment/', chat.result_payment, name='result_payment'),
+    path('success_payment/', chat.check_success_payment, name='success_payment'),
+    path('fail_payment/', chat.fail_payment, name='fail_payment'),
+    path('get_payment_link/', chat.generate_payment_link, name='get_payment_link'),
 ]

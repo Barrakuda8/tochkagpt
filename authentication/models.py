@@ -1,10 +1,28 @@
 import math
+import random
+import string
 from datetime import datetime, timedelta
 import pytz
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.dispatch import receiver
 from tochkagpt import settings
+
+
+class BusinessSubscription(models.Model):
+
+    promo_code = models.CharField(max_length=32, blank=True, verbose_name='Промокод')
+    balance = models.PositiveBigIntegerField(default=0, verbose_name='Баланс')
+
+    class Meta:
+        verbose_name = 'Бизнес подписка'
+        verbose_name_plural = 'Бизнес подписка'
+
+    def __str__(self):
+        return self.promo_code
+
+    def get_users(self):
+        return ', '.join([u.username for u in self.users.select_related().all()])
 
 
 class User(AbstractUser):
@@ -19,6 +37,7 @@ class User(AbstractUser):
         ('Midjourney', 'Midjourney'),
     )
 
+    email = models.EmailField(unique=True, verbose_name='Адрес электронной почты')
     email_verified = models.BooleanField(default=True, verbose_name='Почта подтверждена')
     verification_key = models.CharField(max_length=128, blank=True, null=True, verbose_name='Ключ подтверждения почты')
     verification_key_expires = models.DateTimeField(blank=True, null=True, verbose_name='Ключ истекает')
@@ -32,6 +51,7 @@ class User(AbstractUser):
     requests_MJ = models.PositiveIntegerField(default=0, verbose_name='Количество дополнительных запросов (Midjourney)')
     requests_DL3 = models.PositiveIntegerField(default=0, verbose_name='Количество дополнительных запросов (Dall-e 3)')
     use_context = models.BooleanField(default=True, verbose_name='Использовать контекст')
+    business_subscription = models.ForeignKey(BusinessSubscription, on_delete=models.SET_NULL, related_name='users', blank=True, null=True, verbose_name='Бизнес подписка')
 
     class Meta:
         verbose_name = 'Пользователь'
@@ -53,9 +73,18 @@ class User(AbstractUser):
         else:
             return None
 
+    @property
+    def check_images(self):
+        return self.get_subscription is not None or self.business_subscription or self.requests_SD or self.requests_MJ
+
+    @property
+    def check_samples(self):
+        return (self.get_subscription and self.get_subscription.tariff.samples_included) or self.business_subscription
+
     def check_ai(self, ai):
         subscription = self.get_subscription
-        if (subscription is not None and getattr(subscription.tariff, f'requests_{ai}') > 0) or ai == 'GPT35':
+        if (subscription is not None and getattr(subscription.tariff, f'requests_{ai}') > 0) or ai == 'GPT35' \
+                or self.business_subscription is not None:
             return True
         return False
 
@@ -78,8 +107,9 @@ class User(AbstractUser):
     @property
     def has_img_ai(self):
         subscription = self.get_subscription
-        return False if subscription is None or \
-                        (subscription.tariff.requests_MJ == 0 and subscription.tariff.requests_SD == 0) else True
+        return False if subscription is None and \
+                        (subscription.tariff.requests_MJ == 0 and subscription.tariff.requests_SD == 0) and \
+                        self.business_subscription is None else True
 
     @property
     def get_day_requests(self):
@@ -143,3 +173,15 @@ class User(AbstractUser):
 @receiver(models.signals.pre_save, sender=User)
 def set_username(sender, instance, raw, using, update_fields, *args, **kwargs):
     instance.username = instance.email
+
+
+@receiver(models.signals.pre_save, sender=BusinessSubscription)
+def set_promo_code(sender, instance, raw, using, update_fields, *args, **kwargs):
+    print(instance.promo_code)
+    if not instance.promo_code:
+        validated = False
+        while not validated:
+            promo_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=16))
+            if not BusinessSubscription.objects.filter(promo_code=promo_code).exists():
+                validated = True
+        instance.promo_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=16))

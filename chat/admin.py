@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Message, Attachment, SampleCategory, Sample, Tariff, Subscription, Chat, UserSample, \
-    UserSamplesLikes, NewChatCategory, NewChatSample, NewChatInstruction
+    UserSamplesLikes, NewChatCategory, NewChatSample, NewChatInstruction, PaymentOperation
 
 
 @admin.register(Tariff)
@@ -28,7 +28,6 @@ class ChatAdmin(admin.ModelAdmin):
                     current.save()
             else:
                 obj.is_current = True
-        print(form.changed_data)
         return super(ChatAdmin, self).save_model(request, obj, form, change)
 
 
@@ -98,3 +97,8 @@ class NewChatSampleAdmin(admin.ModelAdmin):
 @admin.register(NewChatInstruction)
 class NewChatInstructionAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'description']
+
+
+@admin.register(PaymentOperation)
+class PaymentOperationAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'status', 'cost', 'details']

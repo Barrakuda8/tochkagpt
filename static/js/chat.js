@@ -54,10 +54,42 @@ window.addEventListener('load', () => {
         $(`#${e.target.classList[2].replace('clickable', 'bg')}`).css('display', 'flex')
     });
 
-    $('.chat-bg-close').on('click', (e) => {
+    $('.chat-payment-clickable').on('click', (e) => {
+        let subject = e.target.classList[2];
+        if(subject == 'payment-tariffs') {
+            let id = e.target.id.search('current') != -1 ? e.target.id.replace('current-tariff-', '') : e.target.id.replace('tariff-', '');
+            $('.chat-payment-tariffs-name').html($(`#tariff-name-${id}`).html());
+            $('.chat-payment-tariffs-submit').attr('id', 'payment-' + e.target.id);
+        } else if(subject == 'payment-requests') {
+            $('.chat-payment-requests-balance').html($('.chat-bg-request-total').html());
+        }
+        $('.chat-payment-content').css('display', '');
+        $('.chat-payment-bg').css('display', 'flex');
+        $(`#${subject}`).css('display', 'flex');
+    });
+
+    $('.chat-bg-close').on('click', () => {
         $('.chat-background-content').css('display', '');
         $('.chat-background').css('display', '');
     });
+
+    $('.chat-payment-close').on('click', () => {
+        $('.chat-payment-tariffs-name').html('');
+        $('.chat-payment-requests-balance').html('');
+        $('.chat-payment-tariffs-submit').removeAttr('id');
+        $('.chat-payment-content').css('display', '');
+        $('.chat-payment-bg').css('display', '');
+    });
+
+    $('.chat-payment-bg').on('click', (e) => {
+        if(e.target.classList.contains('chat-payment-bg')) {
+            $('.chat-payment-tariffs-name').html('');
+            $('.chat-payment-requests-balance').html('');
+            $('.chat-payment-tariffs-submit').removeAttr('id');
+            $('.chat-payment-content').css('display', '');
+            $('.chat-payment-bg').css('display', '');
+        }
+    })
 
     $('.chat-background').on('click', (e) => {
         if(e.target.classList.contains('chat-background-clickable')) {
@@ -714,8 +746,13 @@ window.addEventListener('load', () => {
             if(sampleOn) {
                 $('.chat-chat-sample-remove').click();
             }
-            $('.chat-background').css({'display': 'flex', 'pointer-events': 'none'});
-            $('.chat-background-loader').css('display', 'block');
+            $('.chat-loader').css('visibility', 'visible');
+            $('.chat-chat-textarea').val('');
+            $('.chat-chat-textarea').attr('rows', 1);
+            $('#open-samples').css('display', '');
+            $('#send-message').css('display', '');
+            $('#send-message').addClass('inactive');
+            $('#remove-file').click();
             $.ajax({
                 method: "post",
                 url: "/chat/handle_request/",
@@ -763,14 +800,8 @@ window.addEventListener('load', () => {
                                     </div>`;
                         
                         $(`#${data['rest_requests']['key']}`).html(data['rest_requests']['value'])
-                        $('.chat-chat-textarea').val('');
-                        $('.chat-chat-textarea').attr('rows', 1);
-                        $('#open-samples').css('display', '');
-                        $('#send-message').css('display', '');
                         $('.chat-chat-field-content').prepend(htmlString);
-                        $('#remove-file').click();
-                        $('.chat-background').css({'display': '', 'pointer-events': ''});
-                        $('.chat-background-loader').css('display', '');
+                        $('.chat-loader').css('visibility', '');
                         $('.chat-chat-field-area').scrollTop($('.chat-chat-field-area')[0].scrollHeight);
                         if(isNew) {
                             $('.chat-menu-chat-block.new').css('display', '');
@@ -786,26 +817,27 @@ window.addEventListener('load', () => {
                         }
                     } else if(data['result'] == 'day limit') {
                         $('#notification-title').html('Максимум запросов');
-                        $('#notification-text').html('Достигнут максимум суточных запросов по тарифу "Пробный". Чтобы увеличить количество запросов и разблокировать другие функции, выберите тариф. Также вы можете просто докупить запросы.')
+                        $('#notification-text').html('Достигнут максимум суточных запросов по тарифу "Пробный". Чтобы увеличить количество запросов и разблокировать другие функции, выберите тариф. Также вы можете просто докупить запросы.');
                         $('#bg-notification > .chat-bg-buttons').css('display', '');
-                        $('.chat-background').css('pointer-events', '');
-                        $('.chat-background-loader').css('display', '');
+                        $('.chat-background').css('display', 'flex');
+                        $('.chat-background-loader').css('visibility', '');
                         $('#bg-notification').css('display', 'flex');
                     } else if(data['result'] == 'month limit') {
                         $('#notification-title').html('Максимум запросов');
-                        $('#notification-text').html(`Достигнут максимум запросов к нейросети "${data['ai']}" в этом месяце, либо ваш тариф не предполагает использование этой нейросети. Чтобы увеличить количество запросов, Вы можете выбрать другой тариф или докупить запросы.`)
+                        $('#notification-text').html(`Достигнут максимум запросов к нейросети "${data['ai']}" в этом месяце, либо ваш тариф не предполагает использование этой нейросети. Чтобы увеличить количество запросов, Вы можете выбрать другой тариф или докупить запросы.`);
                         $('#bg-notification > .chat-bg-buttons').css('display', '');
-                        $('.chat-background').css('pointer-events', '');
-                        $('.chat-background-loader').css('display', '');
+                        $('.chat-background').css('display', 'flex');
+                        $('.chat-background-loader').css('visibility', '');
                         $('#bg-notification').css('display', 'flex');
                     } else if(data['result'] == 'failed') {
                         $('#notification-title').html('Упс. Что-то пошло не так');
-                        $('#notification-text').html('Что-то пошло не так. Перезагрузите страницу и попробуйте заново.')
+                        $('#notification-text').html('Что-то пошло не так. Перезагрузите страницу и попробуйте заново.');
                         $('#bg-notification > .chat-bg-buttons').css('display', 'none');
-                        $('.chat-background').css('pointer-events', '');
-                        $('.chat-background-loader').css('display', '');
+                        $('.chat-background').css('display', 'flex');
+                        $('.chat-background-loader').css('visibility', '');
                         $('#bg-notification').css('display', 'flex');
                     }
+                    $('#send-message').removeClass('inactive');
                 },
                 error: (data) => {
                 }
@@ -1147,6 +1179,104 @@ window.addEventListener('load', () => {
     $('.m-chat-chat-options-background').on('click', (e) => {
         $('.chat-chat-textarea-options').css('display', '');
         e.target.style.display = '';
+    })
+
+    $('.chat-payment-tariffs-submit').on('click', (e) => {
+        const token = $('input[name=csrfmiddlewaretoken]').val();
+        let tariffPk = e.target.id.replace('payment-tariff-', '');
+        $.ajax({
+            method: "post",
+            url: "/chat/get_payment_link/",
+            data: {csrfmiddlewaretoken: token, subject: 'tariff', tariff_pk: tariffPk, count: $('.chat-payment-tariffs-months').val()},
+            success: (data) => {
+                if(data['result'] == 'ok') {
+                    window.location.replace(data['link']);
+                } else {
+                    $('.chat-payment-bg').click();
+                    $('#notification-title').html('Упс. Что-то пошло не так');
+                    $('#notification-text').html('Что-то пошло не так. Перезагрузите страницу и попробуйте заново.');
+                    $('#bg-notification > .chat-bg-buttons').css('display', 'none');
+                    $('.chat-background').css('display', 'flex');
+                    $('.chat-background-content').css('display', '');
+                    $('#bg-notification').css('display', 'flex');
+                }
+            },
+            error: (data) => {
+            }
+        });
+    })
+
+    $('.chat-payment-requests-submit').on('click', (e) => {
+        const token = $('input[name=csrfmiddlewaretoken]').val();
+        let requests = [];
+        $('.chat-bg-request-input').each((i, block) => {
+            if(block.value > 0) {
+                requests.push({'ai': block.id.replace('request-', ''), 'quantity': parseInt(block.value)})
+            }
+        })
+        $.ajax({
+            method: "post",
+            url: "/chat/get_payment_link/",
+            data: {csrfmiddlewaretoken: token, subject: 'requests', requests: JSON.stringify(requests)},
+            success: (data) => {
+                if(data['result'] == 'ok') {
+                    window.location.replace(data['link']);
+                } else {
+                    $('.chat-payment-bg').click();
+                    $('#notification-title').html('Упс. Что-то пошло не так');
+                    $('#notification-text').html('Что-то пошло не так. Перезагрузите страницу и попробуйте заново.');
+                    $('#bg-notification > .chat-bg-buttons').css('display', 'none');
+                    $('.chat-background').css('display', 'flex');
+                    $('.chat-background-content').css('display', '');
+                    $('#bg-notification').css('display', 'flex');
+                }
+            },
+            error: (data) => {
+            }
+        });
+    })
+
+    $('.chat-payment-business-submit').on('click', (e) => {
+        const token = $('input[name=csrfmiddlewaretoken]').val();
+        $.ajax({
+            method: "post",
+            url: "/chat/get_payment_link/",
+            data: {csrfmiddlewaretoken: token, subject: 'business', cost: $('.chat-payment-business-balance').val()},
+            success: (data) => {
+                if(data['result'] == 'ok') {
+                    window.location.replace(data['link']);
+                } else {
+                    $('.chat-payment-bg').click();
+                    $('#notification-title').html('Упс. Что-то пошло не так');
+                    $('#notification-text').html('Что-то пошло не так. Перезагрузите страницу и попробуйте заново.');
+                    $('#bg-notification > .chat-bg-buttons').css('display', 'none');
+                    $('.chat-background').css('display', 'flex');
+                    $('.chat-background-content').css('display', '');
+                    $('#bg-notification').css('display', 'flex');
+                }
+            },
+            error: (data) => {
+            }
+        });
+    })
+
+    $('.chat-payment-promocode-submit').on('click', (e) => {
+        const token = $('input[name=csrfmiddlewaretoken]').val();
+        let promocode = $('.chat-payment-promocode').val();
+        $.ajax({
+            method: "post",
+            url: "/chat/enter_promo_code/",
+            data: {csrfmiddlewaretoken: token, promo_code: promocode},
+            success: (data) => {
+                if(data['result'] == 'ok') {
+                    window.location.reload();
+                } else {
+                    $('.chat-payment-wrong-promocode').css('display', 'inline');
+                }
+            },
+            error: (data) => {
+            }
+        });
     })
 
     window.addEventListener('resize', () => {
