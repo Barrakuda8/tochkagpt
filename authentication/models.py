@@ -4,6 +4,7 @@ import string
 from datetime import datetime, timedelta
 import pytz
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.dispatch import receiver
 from tochkagpt import settings
@@ -37,7 +38,12 @@ class User(AbstractUser):
         ('Midjourney', 'Midjourney'),
     )
 
-    email = models.EmailField(unique=True, null=True, verbose_name='Адрес электронной почты')
+    def unique_email_validator(value):
+        if value is not None:
+            if User.objects.filter(email=value.lower()).exists():
+                raise ValidationError("Пользователь с такой почтой уже существует")
+
+    email = models.EmailField(null=True, blank=True, validators=[unique_email_validator], verbose_name='Адрес электронной почты')
     email_verified = models.BooleanField(default=True, verbose_name='Почта подтверждена')
     verification_key = models.CharField(max_length=128, blank=True, null=True, verbose_name='Ключ подтверждения почты')
     verification_key_expires = models.DateTimeField(blank=True, null=True, verbose_name='Ключ истекает')
