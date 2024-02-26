@@ -15,6 +15,7 @@ from uuid import uuid4
 import pytz
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
 from openai import OpenAI
 import requests
 from PIL import Image
@@ -633,14 +634,22 @@ def generate_payment_link(request):
 
 
 # Получение уведомления об исполнении операции (ResultURL).
-
+@csrf_exempt
 def result_payment(request, merchant_password_2=config.ROBOKASSA_PASSWORD_2):
-    param_request = parse_response(request)
+    param_request = request.POST
     cost = param_request['OutSum']
     number = param_request['InvId']
     signature = param_request['SignatureValue']
     operation = PaymentOperation.objects.get(pk=number)
+    print(param_request)
+    print(cost)
+    print(number)
+    print(signature)
+    print(operation)
+    print(check_signature_result(number, cost, signature, merchant_password_2))
+    print(not operation.status == 'S')
     if check_signature_result(number, cost, signature, merchant_password_2) and not operation.status == 'S':
+        print(1)
         operation.status = 'S'
         operation.save()
         subject = operation.details['subject']
@@ -673,9 +682,9 @@ def result_payment(request, merchant_password_2=config.ROBOKASSA_PASSWORD_2):
 
 
 # Проверка параметров в скрипте завершения операции (SuccessURL).
-
+@csrf_exempt
 def check_success_payment(request, merchant_password_1=config.ROBOKASSA_PASSWORD_1):
-    param_request = parse_response(request)
+    param_request = request.POST
     cost = param_request['OutSum']
     number = param_request['InvId']
     signature = param_request['SignatureValue']

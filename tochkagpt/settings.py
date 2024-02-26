@@ -28,6 +28,8 @@ DEBUG = config.DEBUG
 
 ALLOWED_HOSTS = config.ALLOWED_HOSTS
 
+CSRF_TRUSTED_ORIGINS = config.TRUSTED_ORIGINS
+
 
 # Application definition
 
