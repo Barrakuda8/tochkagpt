@@ -37,7 +37,7 @@ class User(AbstractUser):
         ('Midjourney', 'Midjourney'),
     )
 
-    email = models.EmailField(unique=True, verbose_name='Адрес электронной почты')
+    email = models.EmailField(unique=True, null=True, verbose_name='Адрес электронной почты')
     email_verified = models.BooleanField(default=True, verbose_name='Почта подтверждена')
     verification_key = models.CharField(max_length=128, blank=True, null=True, verbose_name='Ключ подтверждения почты')
     verification_key_expires = models.DateTimeField(blank=True, null=True, verbose_name='Ключ истекает')
