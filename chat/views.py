@@ -641,15 +641,7 @@ def result_payment(request, merchant_password_2=config.ROBOKASSA_PASSWORD_2):
     number = param_request['InvId']
     signature = param_request['SignatureValue']
     operation = PaymentOperation.objects.get(pk=number)
-    print(param_request)
-    print(cost)
-    print(number)
-    print(signature)
-    print(operation)
-    print(check_signature_result(number, cost, signature, merchant_password_2))
-    print(not operation.status == 'S')
     if check_signature_result(number, cost, signature, merchant_password_2) and not operation.status == 'S':
-        print(1)
         operation.status = 'S'
         operation.save()
         subject = operation.details['subject']

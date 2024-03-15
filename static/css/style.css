@@ -3157,7 +3157,7 @@ new-block .chat-bg-new-sample-block > span {
   }
   .header-menu-block {
     position: fixed;
-    height: calc(100vh - 140px);
+    height: calc(100vh - 190px);
     width: 200px;
     top: 40px;
     right: -225px;
@@ -3173,7 +3173,7 @@ new-block .chat-bg-new-sample-block > span {
   }
   .header-login-button {
     position: fixed;
-    top: calc(100vh - 75px);
+    top: calc(100vh - 125px);
     right: -167px;
     z-index: 102;
     display: none;
