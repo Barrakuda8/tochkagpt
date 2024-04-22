@@ -491,6 +491,10 @@ a {
   padding-top: 90px;
 }
 
+.index-review {
+  width: 100%;
+}
+
 .index-description {
   font-size: 18px;
   font-weight: 400;
@@ -503,7 +507,7 @@ a {
   margin: 60px 0;
   width: 100%;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 30px;
 }
 
@@ -575,7 +579,7 @@ a {
 
 .index-tariff-block {
   width: 360px;
-  height: 661px;
+  height: 800px;
   border-radius: 10px;
   background: rgb(41, 40, 47);
   box-shadow: 0px 0px 10px 3px rgba(0, 0, 0, 0.1);
@@ -585,6 +589,10 @@ a {
   flex-direction: column;
   justify-content: space-between;
   position: relative;
+}
+
+.index-tariff-block .button {
+  cursor: pointer;
 }
 
 .most-chosen {
@@ -610,7 +618,11 @@ a {
 }
 
 .index-tariffs {
-  height: 400px;
+  height: 320px;
+}
+
+.index-tariff-description {
+  text-align: center;
 }
 
 .index-tariff-price {
@@ -735,6 +747,11 @@ a {
 }
 
 .footer-contacts-logo {
+  display: flex;
+  align-items: center;
+}
+
+.footer-contacts-logo > img {
   width: 24px;
 }
 
@@ -910,17 +927,9 @@ a {
   width: calc(100% - 320px);
 }
 
-.business-clients {
-  padding: 70px 0 150px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-}
-
-.business-client {
-  width: 200px;
-  margin: 10px;
+.business-top-right {
+  width: calc(100% - 480px);
+  margin-left: 20px;
 }
 
 .business-tariff {
@@ -2200,8 +2209,8 @@ new-block .chat-bg-new-sample-block > span {
 }
 
 .chat-tariff-block {
-  width: 274px;
-  height: 450px;
+  width: 350px;
+  height: 550px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(155, 63, 212, 0.2);
   padding: 30px 20px 20px 20px;
@@ -2234,7 +2243,7 @@ new-block .chat-bg-new-sample-block > span {
 }
 
 .chat-tariffs {
-  height: 240px;
+  height: 330px;
 }
 
 .chat-tariff-li {
@@ -2254,7 +2263,7 @@ new-block .chat-bg-new-sample-block > span {
 }
 
 .chat-tariff-button {
-  width: 228px;
+  width: 100%;
   height: 40px;
   color: #FFFFFF;
   cursor: pointer;
@@ -3243,10 +3252,6 @@ new-block .chat-bg-new-sample-block > span {
   .footer-bottom-left {
     width: 400px;
   }
-  .business-top-right {
-    width: calc(100% - 480px);
-    margin-left: 20px;
-  }
   .business-tariff {
     grid-template-columns: 1fr;
   }
@@ -3413,7 +3418,7 @@ new-block .chat-bg-new-sample-block > span {
   }
   .business-top-right {
     margin: 30px 0;
-    width: auto;
+    width: 80%;
   }
   .business-top-demo {
     margin-top: 30px;
@@ -3483,7 +3488,11 @@ new-block .chat-bg-new-sample-block > span {
   }
   .chat-tariff-block {
     margin: 20px 0;
-    min-height: 450px;
+    min-height: 550px;
+  }
+  .index-reviews-content {
+    grid-template-columns: 100%;
+    margin-bottom: 30px;
   }
 }
 @media (max-width: 768px) {
@@ -3517,9 +3526,6 @@ new-block .chat-bg-new-sample-block > span {
   .footer-bottom-left {
     margin-top: 20px;
     width: calc(100% - 240px);
-  }
-  .business-top-right {
-    width: 80%;
   }
   .business-top-demo {
     flex-direction: column;
@@ -3703,10 +3709,10 @@ new-block .chat-bg-new-sample-block > span {
   }
   .index-tariff-block {
     width: 300px;
-    height: 600px;
+    height: 830px;
   }
   .index-tariffs {
-    height: 350px;
+    height: 360px;
   }
   .index-question {
     font-size: 18px;
@@ -3735,9 +3741,6 @@ new-block .chat-bg-new-sample-block > span {
   }
   .business-top-left > div {
     margin-top: 40px;
-  }
-  .business-clients {
-    padding: 40px 0 80px;
   }
   .chat-samples-menu-subblock {
     font-size: 12px;
@@ -3789,15 +3792,11 @@ new-block .chat-bg-new-sample-block > span {
     max-width: calc(100vw - 30px);
   }
   .chat-tariffs {
-    height: 220px;
+    height: 330px;
     font-size: 14px;
   }
   .chat-tariff-price {
     font-size: 18px;
-  }
-  .chat-tariff-block {
-    height: 430px;
-    min-height: 430px;
   }
   .chat-chat-message > p {
     font-size: 16px;
@@ -3859,7 +3858,6 @@ new-block .chat-bg-new-sample-block > span {
     width: 95%;
     margin: 20px 0;
     padding: 30px 10px 10px;
-    height: 550px;
   }
   .index-tariff-most-chosen-img {
     width: 50vw;
@@ -3912,6 +3910,13 @@ new-block .chat-bg-new-sample-block > span {
   .chat-tariffs-button > span {
     text-align: center;
     flex-grow: 1;
+  }
+  .chat-tariffs {
+    height: 370px;
+  }
+  .chat-tariff-block {
+    height: 600px;
+    width: calc(100vw - 60px);
   }
 }
 @media (max-width: 300px) {

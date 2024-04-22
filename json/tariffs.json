@@ -2,7 +2,8 @@
   {
     "name": "Test",
     "price": 500,
-    "characteristics": {"details":  []},
+    "characteristics": {"details": ["Доступ к GPT-3.5\nбезлимитное количество запросов\n",
+      "Создание изображений\nс помощью Stable Diffusion"]},
     "requests_GPT35": 100,
     "requests_GPT4": 0,
     "requests_VS": 10,
@@ -10,12 +11,16 @@
     "requests_MJ": 0,
     "requests_DL3": 0,
     "samples_included": false,
-    "most_chosen": false
+    "most_chosen": false,
+    "top_description": "Общение с нейросетью по простым вопросам и советам",
+    "bottom_description": "Подойдет для бытового использования  и нечастых задач"
   },
   {
-    "name": "Premium",
+    "name": "Premium design",
     "price": 1000,
-    "characteristics": {"details":  ["Шаблоны запросов"]},
+    "characteristics": {"details":  ["Доступ к GPT-4\nбезлимитное количество запросов к GPT-4\n",
+    "Расширенный функционал по работе с изображениями\nStable Diffusion, Dall-e 3, Gpt vision",
+    "Техническая поддержка"]},
     "requests_GPT35": 300,
     "requests_GPT4": 0,
     "requests_VS": 30,
@@ -23,12 +28,16 @@
     "requests_MJ": 0,
     "requests_DL3": 10,
     "samples_included": true,
-    "most_chosen": true
+    "most_chosen": true,
+    "top_description": "Более качественные  ответы и работа с картинками",
+    "bottom_description": "Подойдет для работы и ежедневного использования"
   },
   {
-    "name": "Ultra",
+    "name": "Ultra work",
     "price": 3000,
-    "characteristics": {"details":  ["Шаблоны запросов"]},
+    "characteristics": {"details":  ["Доступ к GPT-4\nбезлимитное количество запросов к GPT-4\n",
+    "Профессиональный функционал по работе с изображениями\nStable Diffusion, Dall-e 3, Gpt vision, Midjourney",
+    "Приоритетная техническая поддержка", "Инструкции по заработку на нейросетях", "Подписка в ИИ клуб по заработку"]},
     "requests_GPT35": 0,
     "requests_GPT4": 1000,
     "requests_VS": 100,
@@ -36,6 +45,8 @@
     "requests_MJ": 50,
     "requests_DL3": 50,
     "samples_included": true,
-    "most_chosen": false
+    "most_chosen": false,
+    "top_description": "Для профессиональной работы с инструкциями по заработку на нейросетях",
+    "bottom_description": "Подойдет для серьезной объемной работы"
   }
 ]

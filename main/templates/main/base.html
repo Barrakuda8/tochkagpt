@@ -9,7 +9,7 @@
         {% block css %}
         {% endblock %}
         <link rel="stylesheet" href="{% static 'css/style.css'%}">
-        <link type="image/x-icon" href="{% static 'img/logo.svg'%}" rel="shortcut icon" id="head_icon">
+        <link type="image/x-icon" href="{% static 'img/favicon.ico'%}" rel="shortcut icon" id="head_icon">
         <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
         <script src="{% static 'js/base.js' %}"></script>
         {% block js %}
@@ -19,9 +19,9 @@
     {% block header %}
     <div class="header-wrapper">
         <div class="container header">
-            <a href="#top" class="header-logo-block">
-                <img src="{% static 'img/logo.svg'%}" alt="logo" class="header-logo">
-                <span class="header-logo-title">Chad</span>
+            <a href="{% url 'main:index' %}" class="header-logo-block">
+                <img src="{% static 'img/logo.png'%}" alt="logo" class="header-logo">
+                <span class="header-logo-title">точкаGPT</span>
             </a>
             <div class="m-header-menu-open">
                 <div></div>
@@ -39,7 +39,7 @@
                     <a href="{% url 'main:index' %}#tariffs" class="header-menu-link">Тарифы</a>
                     <a href="{% url 'main:business' %}" class="header-menu-link{% if 'business' in request.resolver_match.url_name %} active{% endif %}">Для бизнеса</a>
                     <a href="{% url 'main:faq' %}" class="header-menu-link{% if 'faq' in request.resolver_match.url_name %} active{% endif %}">Вопросы</a>
-                    <a href="{% url 'main:blog' %}" class="header-menu-link{% if 'blog' in request.resolver_match.url_name %} active{% endif %}">Блог</a>
+<!--                    <a href="{% url 'main:blog' %}" class="header-menu-link{% if 'blog' in request.resolver_match.url_name %} active{% endif %}">Блог</a>-->
                 {% endblock %}
             </div>
             <a href="{% url 'chat:index' %}" class="button header-login-button">Войти</a>
@@ -53,7 +53,7 @@
         <div class="container footer">
             <div class="footer-top">
                 <div class="footer-menu-block">
-                    <img src="{% static 'img/logo.svg'%}" alt="logo" class="header-logo">
+                    <img src="{% static 'img/logo.png'%}" alt="logo" class="header-logo">
                     {% block footer_menu %}
                         <a href="{% url 'main:index' %}#capabilities" class="header-menu-link">Что может</a>
                         <a href="{% url 'main:index' %}#mechanism" class="header-menu-link">Как работает</a>
@@ -61,19 +61,19 @@
                         <a href="{% url 'main:index' %}#tariffs" class="header-menu-link">Тарифы</a>
                         <a href="{% url 'main:business' %}" class="header-menu-link{% if 'business' in request.resolver_match.url_name %} active{% endif %}">Для бизнеса</a>
                         <a href="{% url 'main:faq' %}" class="header-menu-link{% if 'faq' in request.resolver_match.url_name %} active{% endif %}">Вопросы</a>
-                        <a href="{% url 'main:blog' %}" class="header-menu-link{% if 'blog' in request.resolver_match.url_name %} active{% endif %}">Блог</a>
+<!--                        <a href="{% url 'main:blog' %}" class="header-menu-link{% if 'blog' in request.resolver_match.url_name %} active{% endif %}">Блог</a>-->
                     {% endblock %}
                 </div>
                 <div class="footer-contacts">
-                    <a href="mailto:brpslelush@gmail.com" class="header-menu-link">hello@chadgpt.ru</a>
+                    <a href="mailto:hello@tochkagpt.ru" class="header-menu-link">hello@tochkagpt.ru</a>
                     <img src="{% static 'img/logo-vk.svg' %}" alt="vk" class="footer-contacts-logo">
-                    <img src="{% static 'img/logo-telegram.svg' %}" alt="tg" class="footer-contacts-logo">
+                    <a href="https://t.me/chat9pt_bot" class="footer-contacts-logo" target="_blank"><img src="{% static 'img/logo-telegram.svg' %}" alt="tg"></a>
                 </div>
             </div>
             <div class="footer-bottom">
                 <p class="footer-bottom-left">Оплачивая тариф и/или начиная использовать настоящий сервис Вы соглашаетесь с условиями <a href="{% url 'main:rules' %}" class="index-tariffs-after-link">Оферты</a></p>
                 <div class="footer-bottom-right">
-                    <p>© 2022 — 2024 «Chad GPT»</p>
+                    <p>© 2022 — 2024 «точкаGPT»</p>
                     <a href="{% url 'main:rules' %}">Все права защищены</a>
                 </div>
             </div>

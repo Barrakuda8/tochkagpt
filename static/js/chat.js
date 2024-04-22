@@ -661,7 +661,7 @@ window.addEventListener('load', () => {
                 let htmlString = '';
                 for(let message of data['messages']) {
                     let text = message['text'].length > 0 ? `<p id="text-${message['pk']}">${message['text']}</p>` : '';
-                    let avatar = message['is_sender'] ? `<div class="chat-chat-message-avatar">${data['avatar']}</div>` : `<div class="chat-chat-message-logo"><img src="/${staticURL}img/logo.svg"></div>`;
+                    let avatar = message['is_sender'] ? `<div class="chat-chat-message-avatar">${data['avatar']}</div>` : `<div class="chat-chat-message-logo"><img src="/${staticURL}img/logo.png"></div>`;
                     let file = '';
                     if(message['file'] != null) {
                         file = message['is_sender'] ? `<a href="${message['file'][0]}" target="_blank" class="chat-chat-message-attachment">.${message['file'][1]}</a>` : `<div class="chat-chat-message-img-block"><img src="${message['file'][0]}" class="chat-chat-message-img"></div>`
@@ -770,7 +770,7 @@ window.addEventListener('load', () => {
                         let requestSample = Object.keys(data).includes('sample') ? `<span class="chat-chat-message-label">Шаблон:</span><p>${data['sample']}</p><span class="chat-chat-message-label">Запрос:</span>` : '';
                         htmlString = `<div class="chat-chat-message-block received" id="message-${data['response']['message_pk']}">
                                         <div class="chat-chat-message-logo">
-                                            <img src="/${staticURL}img/logo.svg">
+                                            <img src="/${staticURL}img/logo.png">
                                         </div>
                                         <div class="chat-chat-message">
                                             ${responseText}

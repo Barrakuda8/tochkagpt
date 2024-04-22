@@ -20,7 +20,7 @@
                     <img src="{% static 'img/faq-cross.svg' %}" alt="x" class="index-question-cross">
                 </div>
             </div>
-            <div class="index-answer" id="answer-{{ faq.pk }}">{{ faq.answer }}</div>
+            <div class="index-answer" id="answer-{{ faq.pk }}">{{ faq.answer|safe }}</div>
         </div>
         {% endfor %}
     </div>

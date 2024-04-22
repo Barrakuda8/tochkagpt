@@ -21,6 +21,8 @@ class Tariff(models.Model):
     requests_DL3 = models.PositiveIntegerField(default=0, verbose_name='Количество запросов в месяц (Dall-e 3)')
     samples_included = models.BooleanField(default=False, verbose_name='Подключены шаблоны')
     most_chosen = models.BooleanField(default=False, verbose_name='Самый часто выбираемый')
+    top_description = models.TextField(null=True, verbose_name='Верхнее описание')
+    bottom_description = models.TextField(null=True, verbose_name='Нижнее описание')
 
     class Meta:
         verbose_name = 'Тариф'
@@ -31,20 +33,21 @@ class Tariff(models.Model):
 
     @property
     def get_characteristics(self):
-        result = []
-        data = {
-            'GPT35': 'запросов GPT-3.5',
-            'GPT4': 'запросов GPT-4',
-            'VS': 'запросов Vision',
-            'SD': 'изображений Stable Diffusion',
-            'MJ': 'генераций Midjourney',
-            'DL3': 'изображений Dall-e 3',
-        }
-        for ai in ['GPT35', 'GPT4', 'VS', 'SD', 'MJ', 'DL3']:
-            req = getattr(self, f'requests_{ai}')
-            if req > 0:
-                result.append(f'{req} {data[ai]}')
-        return result + self.characteristics["details"]
+        # result = []
+        # data = {
+        #     'GPT35': 'запросов GPT-3.5',
+        #     'GPT4': 'запросов GPT-4',
+        #     'VS': 'запросов Vision',
+        #     'SD': 'изображений Stable Diffusion',
+        #     'MJ': 'генераций Midjourney',
+        #     'DL3': 'изображений Dall-e 3',
+        # }
+        # for ai in ['GPT35', 'GPT4', 'VS', 'SD', 'MJ', 'DL3']:
+        #     req = getattr(self, f'requests_{ai}')
+        #     if req > 0:
+        #         result.append(f'{req} {data[ai]}')
+        # return result + self.characteristics["details"]
+        return self.characteristics['details']
 
 
 class Subscription(models.Model):

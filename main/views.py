@@ -1,12 +1,12 @@
 from django.shortcuts import render
 from chat.models import Tariff
-from main.models import FAQ, Review, FAQCategory, Article, ArticleCategory, Client
+from main.models import FAQ, Review, FAQCategory, Article, ArticleCategory
 
 
 def index(request):
 
     context = {
-        'title': 'Chad | ChatGPT на русском',
+        'title': 'точкаGPT | ChatGPT на русском',
         'faqs': FAQ.objects.filter(home_page=True),
         'reviews': Review.objects.all().order_by('-pk')[:6],
         'tariffs': Tariff.objects.all().order_by('price'),
@@ -18,9 +18,8 @@ def index(request):
 def business(request):
 
     context = {
-        'title': 'Chad для компаний',
-        'faqs': FAQ.objects.filter(business_page=True),
-        'clients': Client.objects.all()
+        'title': 'точкаGPT для компаний',
+        'faqs': FAQ.objects.filter(business_page=True)
     }
 
     return render(request, 'main/business.html', context=context)

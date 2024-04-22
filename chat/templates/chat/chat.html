@@ -7,7 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block title %}{{ title }}{% endblock %}</title>
         <link rel="stylesheet" href="{% static 'css/style.css'%}">
-        <link type="image/x-icon" href="{% static 'img/logo.svg'%}" rel="shortcut icon" id="head_icon">
+        <link type="image/x-icon" href="{% static 'img/logo.png'%}" rel="shortcut icon" id="head_icon">
         <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
         <script src="{% static 'js/chat.js' %}"></script>
         <style>
@@ -35,8 +35,8 @@
             <div class="chat-menu-block">
                 <div class="chat-menu-top">
                     <a class="chat-menu-logo-block">
-                        <img src="{% static 'img/logo.svg'%}" alt="logo" class="chat-menu-logo">
-                        <span class="chat-menu-logo-title">Chad</span>
+                        <img src="{% static 'img/logo.png'%}" alt="logo" class="chat-menu-logo">
+                        <span class="chat-menu-logo-title">точкаGPT</span>
                     </a>
                     <div class="chat-menu-chat-block new{% if not current_chat %} selected{% endif %}"{% if not user.is_authenticated or not chats %}style="display: none;"{% endif %}>
                         <img src="{% static 'img/chat-new-icon.svg' %}" alt="+" class="chat-menu-img">
@@ -76,8 +76,8 @@
                     <div></div>
                 </div>
                 <a class="m-chat-menu-logo-block">
-                    <img src="{% static 'img/logo.svg'%}" alt="logo" class="m-chat-menu-logo">
-                    <span class="m-chat-menu-logo-title">Chad</span>
+                    <img src="{% static 'img/logo.png'%}" alt="logo" class="m-chat-menu-logo">
+                    <span class="m-chat-menu-logo-title">точкаGPT</span>
                 </a>
                 <div class="m-chat-menu-new">Новый чат</div>
             </div>
@@ -93,7 +93,7 @@
                                         <div class="chat-chat-message-avatar">{{ user.username.0 }}</div>
                                     {% else %}
                                         <div class="chat-chat-message-logo">
-                                            <img src="{% static 'img/logo.svg' %}">
+                                            <img src="{% static 'img/logo.png' %}">
                                         </div>
                                     {% endif %}
                                     <div class="chat-chat-message">
@@ -433,7 +433,7 @@
             <div {% if user.is_authenticated %}class="chat-background chat-background-clickable"{% else %}class="chat-background" style="display: flex;"{% endif %}>
                 {% if not user.is_authenticated %}
                     <div class="chat-background-content" id="bg-auth"{% if action == 'none' %} style="display: flex;"{% endif %}>
-                        <span class="chat-auth-label">Вход или регистрация в Chad</span>
+                        <span class="chat-auth-label">Вход или регистрация в точкаGPT</span>
                         <a  href="{% url 'social:begin' 'yandex-oauth2' %}?next=/chat/" class="chat-auth-social yandex">
                             <img src="{% static 'img/chat-auth-yandex.svg' %}" alt="yandex">
                             <span>Яндекс</span>
@@ -841,7 +841,7 @@
                                 </div>
                             </div>
                             <div class="chat-bg-new-block">
-                                <p>Создание картинок доступно в <span class="chat-bg-new-link chat-clickable clickable-tariffs">платных тарифах Chad.</p>
+                                <p>Создание картинок доступно в <span class="chat-bg-new-link chat-clickable clickable-tariffs">платных тарифах точкаGPT.</p>
                                 <p>Ниже - примеры того, что можно ожидать по запросу:<br>
                                     <i>"{{ sample.text }}".</i>
                                 </p>

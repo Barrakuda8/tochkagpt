@@ -6,7 +6,7 @@
 {% block content %}
 <div class="business-top container">
     <div class="business-top-left">
-        <h1 class="business-title use-free">Chad для бизнеса</h1>
+        <h1 class="business-title use-free">точкаGPT для бизнеса</h1>
         <div>
             <div class="index-li">
                 <img src="{% static 'img/business-top-li.svg' %}" alt="+" class="index-list-img">
@@ -22,18 +22,12 @@
             </div>
         </div>
         <div class="business-top-demo">
-            <a href="{% url 'chat:index' %}" class="button index-big-button">Попробовать демо</a>
+            <a href="https://t.me/help_tochkaGPT" target="_blank" class="button index-big-button">Попробовать демо</a>
             <span>Бесплатный тестовый период</span>
         </div>
     </div>
-    <img src="{% static 'img/business-top.png' %}" class="business-top-right">
-    <h1 class="business-title m-use-free">Chad для бизнеса</h1>
-</div>
-<div class="container"><h1 class="business-title">Наши клиенты</h1></div>
-<div class="business-clients container">
-    {% for client in clients %}
-        <img src="{{ client.image.url }}" class="business-client">
-    {% endfor %}
+    <img src="{% static 'img/top-5.png' %}" class="business-top-right">
+    <h1 class="business-title m-use-free">точкаGPT для бизнеса</h1>
 </div>
 <div class="container"><h1 class="business-title">Особенности тарифа</h1></div>
 <div class="business-tariff container">
@@ -76,7 +70,7 @@
             </div>
         </div>
         <div class="business-top-demo">
-            <a href="#" class="button index-big-button">Запросить демо</a>
+            <a href="https://t.me/help_tochkaGPT" target="_blank" class="button index-big-button">Запросить демо</a>
         </div>
     </div>
     <img src="{% static 'img/business-conditions.png' %}" class="business-top-right">
@@ -92,7 +86,7 @@
                 <img src="{% static 'img/faq-cross.svg' %}" alt="x" class="index-question-cross">
             </div>
         </div>
-        <div class="index-answer" id="answer-{{ faq.pk }}">{{ faq.answer }}</div>
+        <div class="index-answer" id="answer-{{ faq.pk }}">{{ faq.answer|safe }}</div>
     </div>
     {% endfor %}
 </div>
